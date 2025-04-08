@@ -1,8 +1,0 @@
-pandas
-numpy
-scikit-learn
-tensorflow
-keras
-joblib
-yfinance
-python-telegram-bot
