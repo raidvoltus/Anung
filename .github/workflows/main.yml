@@ -26,23 +26,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Generate Dummy Data
-        run: python generate_dummy_data.py
-
-      - name: 📥 Generate historical data (jika belum ada)
-        run: |
-          if [ ! -f "data/historical_data.csv" ]; then
-            echo "⚠️ File data belum ditemukan. Menghasilkan sekarang..."
-            python generate_historical_data.py
-          fi
-
-      - name: 🧠 Train model (jika belum ada)
-        run: |
-          if [ ! -f "models/lightgbm_model.pkl" ] || [ ! -f "models/lstm_model.h5" ]; then
-            echo "⚠️ Model belum ditemukan. Training sekarang..."
-            python train_model.py
-          fi
-
       - name: 🚀 Jalankan bot prediksi & kirim sinyal
         run: python main.py
 
