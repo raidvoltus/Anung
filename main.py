@@ -133,7 +133,7 @@ def train_lstm(X, y):
         Dense(1)
     ])
     model.compile(optimizer="adam", loss="mean_squared_error")
-    model.fit(X_lstm, y, epochs=10, batch_size=32, verbose=0)
+    model.fit(X_lstm, y, epochs=55, batch_size=32, verbose=0)
     return model
 
 # === Analisa Saham ===
@@ -174,10 +174,18 @@ def analyze_stock(ticker):
 # === Main Execution ===
 if __name__ == "__main__":
     logging.info("🚀 Memulai analisis saham...")
+    all_results = []
     with ThreadPoolExecutor(max_workers=1) as executor:
-        results = list(executor.map(analyze_stock, STOCK_LIST))
-    results = [r for r in results if r is not None]
+        for result in executor.map(analyze_stock, STOCK_LIST):
+            if result:
+                logging.info(f"✅ {result['ticker']} lolos filter! TP: {result['take_profit']}, SL: {result['stop_loss']}")
+            else:
+                logging.info(f"❌ Tidak ada sinyal valid.")
+            all_results.append(result)
+
+    results = [r for r in all_results if r is not None]
     top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
+
     if top_5:
         message = "<b>📊 Top 5 Sinyal Trading Hari Ini:</b>\n"
         for r in top_5:
@@ -185,5 +193,9 @@ if __name__ == "__main__":
                         f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n   "
                         f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n")
         send_telegram_message(message)
+        logging.info("📨 Sinyal dikirim ke Telegram!")
+    else:
+        logging.info("⚠️ Tidak ada sinyal yang memenuhi syarat hari ini.")
+
     pd.DataFrame(results).to_csv(BACKUP_CSV_PATH, index=False)
     logging.info("✅ Bot selesai.")
