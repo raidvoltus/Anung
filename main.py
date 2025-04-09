@@ -1,7 +1,3 @@
-# === Instalasi Dependensi (Hanya Perlu Sekali) ===
-!pip install yfinance lightgbm tensorflow joblib requests numpy pandas ta
-
-# === Import Library ===
 import os
 import logging
 import sqlite3
@@ -24,8 +20,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 # === Konfigurasi Telegram & Variabel ===
 
-TELEGRAM_TOKEN = "7627594999:AAE-6GMStrcSgfBylJoE1PoKStOgLDDlcxc"
-CHAT_ID = "5914786166"
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 ATR_MULTIPLIER = 2.5
 RETRAIN_INTERVAL = 7
 STOCK_LIST = [
