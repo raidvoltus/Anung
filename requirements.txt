@@ -1,8 +1,11 @@
-yfinance
-lightgbm
-tensorflow
-joblib
-requests
+kivy
 numpy
 pandas
+requests
+joblib
+yfinance
+scikit-learn
+lightgbm
+tensorflow
 ta
+pytz
