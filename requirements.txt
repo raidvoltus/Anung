@@ -1,10 +1,8 @@
-pandas
-numpy
-scikit-learn
-tensorflow
-keras
-joblib
 yfinance
-python-telegram-bot
 lightgbm
+tensorflow
+joblib
+requests
+numpy
+pandas
 ta
