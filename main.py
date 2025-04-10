@@ -1,7 +1,3 @@
-# === Instalasi Dependensi (Hanya Sekali) ===
-!pip install yfinance lightgbm tensorflow joblib requests numpy pandas ta schedule pytz
-
-# === Import Library ===
 import os, time, joblib, requests, logging, schedule
 import numpy as np
 import pandas as pd
