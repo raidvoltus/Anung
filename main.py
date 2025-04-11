@@ -154,10 +154,9 @@ def analyze_stock(ticker):
     X_train, _, y_train_high, _ = train_test_split(X, y_high, test_size=0.2)
     _, _, y_train_low, _ = train_test_split(X, y_low, test_size=0.2)
 
-    # Training ulang setiap waktu tertentu
     retrain = True
     if not (os.path.exists(MODEL_HIGH_PATH) and os.path.exists(MODEL_LOW_PATH) and os.path.exists(MODEL_LSTM_PATH)):
-        logging.warning("â ï¸ Model belum ditemukan. Training sekarang...")
+        logging.warning("⚠️ Model belum ditemukan. Training sekarang...")
     else:
         last_modified = datetime.fromtimestamp(os.path.getmtime(MODEL_HIGH_PATH))
         if (datetime.now() - last_modified).days < RETRAIN_INTERVAL:
@@ -178,19 +177,18 @@ def analyze_stock(ticker):
     pred_high = model_high.predict(X.iloc[-1:])[0]
     pred_low = model_low.predict(X.iloc[-1:])[0]
     current_price = df["Close"].iloc[-1]
-    
+
     mae = mean_absolute_error(y_high, model_high.predict(X))
     mse = mean_squared_error(y_high, model_high.predict(X))
     logging.info(f"{ticker} MAE: {mae:.4f} | MSE: {mse:.4f}")
-    
-    risk = current_price - pred_low
-    reward = pred_high - current_price
 
-    logging.info(f"{ticker} - Harga: {current_price:.2f}, Pred High: {pred_high:.2f}, Pred Low: {pred_low:.2f}, Risk: {risk:.2f}, Reward: {reward:.2f}")
+    potential_profit_pct = ((pred_high - current_price) / current_price) * 100
 
-if potential_profit_pct < 3:
-    logging.info(f"{ticker} ditolak: Potensi profit {potential_profit_pct:.2f}% < 3%")
-    return None
+    logging.info(f"{ticker} - Harga: {current_price:.2f}, Pred High: {pred_high:.2f}, Pred Low: {pred_low:.2f}, Potensi Profit: {potential_profit_pct:.2f}%")
+
+    if potential_profit_pct < 3:
+        logging.info(f"{ticker} ditolak: Potensi profit {potential_profit_pct:.2f}% < 3%")
+        return None
 
     action = "beli" if pred_high > current_price else "jual"
     return {
@@ -198,7 +196,8 @@ if potential_profit_pct < 3:
         "harga": round(current_price, 2),
         "take_profit": round(pred_high, 2),
         "stop_loss": round(pred_low, 2),
-        "aksi": action
+        "aksi": action,
+        "profit_pct": round(potential_profit_pct, 2)
     }
 
 if __name__ == "__main__":
