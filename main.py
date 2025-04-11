@@ -156,7 +156,7 @@ def analyze_stock(ticker):
 
     risk = current_price - pred_low
     reward = pred_high - current_price
-    if risk <= 0 or reward / risk < 3:
+    if risk <= 0 or reward / risk < 2:
         return None
     action = "beli" if pred_high > current_price else "jual"
     return {
