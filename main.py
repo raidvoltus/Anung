@@ -90,7 +90,12 @@ def calculate_indicators(df):
     return df.dropna()
 
 def train_lightgbm(X, y):
-    model = lgb.LGBMRegressor(n_estimators=500, learning_rate=0.05)
+    model = lgb.LGBMRegressor(
+    n_estimators=500,
+    learning_rate=0.05,
+    min_gain_to_split=0.01,
+    min_data_in_leaf=20
+)
     model.fit(X, y)
     return model
 
