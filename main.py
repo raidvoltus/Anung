@@ -188,9 +188,9 @@ def analyze_stock(ticker):
 
     logging.info(f"{ticker} - Harga: {current_price:.2f}, Pred High: {pred_high:.2f}, Pred Low: {pred_low:.2f}, Risk: {risk:.2f}, Reward: {reward:.2f}")
 
-    if risk <= 0 or reward / risk < 2:  # <<== ubah dari 3 jadi 2 (sementara)
-        logging.info(f"{ticker} ditolak: Risk <= 0 atau Reward/Risk < 2")
-        return None
+if potential_profit_pct < 3:
+    logging.info(f"{ticker} ditolak: Potensi profit {potential_profit_pct:.2f}% < 3%")
+    return None
 
     action = "beli" if pred_high > current_price else "jual"
     return {
