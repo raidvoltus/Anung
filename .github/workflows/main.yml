@@ -24,7 +24,9 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run Trading Bot
-      run: python main.py
+      run: |
+        python main.py > trading.log 2>&1
+        cat trading.log
 
     - name: Commit and Push Changes
       run: |
