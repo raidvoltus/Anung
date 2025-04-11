@@ -163,20 +163,24 @@ def analyze_stock(ticker):
     }
 
 if __name__ == "__main__":
-    logging.info("ð Memulai analisis saham...")
+    logging.info("🚀 Memulai analisis saham...")
     with ThreadPoolExecutor(max_workers=1) as executor:
         results = list(executor.map(analyze_stock, STOCK_LIST))
     results = [r for r in results if r]
 
-    top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
-    if top_5:
-        message = "<b>Top 5 Sinyal Trading Hari Ini:</b>\n"
-for r in top_5:
-    message += (
-        f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
-        f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n   "
-        f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n"
-    )
-    send_telegram_message(message)
+    if results:
+        top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
+        message = "<b>📊 Top 5 Sinyal Trading Hari Ini:</b>\n"
+        for r in top_5:
+            message += (
+                f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
+                f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n   "
+                f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n"
+            )
+        send_telegram_message(message)
+        logging.info("✅ Sinyal berhasil dikirim ke Telegram.")
+    else:
+        logging.info("⚠️ Tidak ada sinyal yang memenuhi syarat hari ini.")
+
     pd.DataFrame(results).to_csv(BACKUP_CSV_PATH, index=False)
-    logging.info("â Selesai dan data disimpan.")
+    logging.info(f"✅ Data disimpan ke {BACKUP_CSV_PATH}")
