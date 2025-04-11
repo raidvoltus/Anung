@@ -84,7 +84,7 @@ def send_telegram_message(message):
 def get_stock_data(ticker):
     try:
         stock = yf.Ticker(ticker)
-        data = stock.history(period="90d", interval="30m")
+        data = stock.history(period="60d", interval="15m")
         if data is not None and not data.empty and len(data) >= 200:
             data["ticker"] = ticker
             return data
