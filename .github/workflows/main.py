@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install yfinance lightgbm tensorflow scikit-learn pandas numpy ta joblib requests matplotlib
+          pip install requirements.txt
 
       - name: Run Analysis Script
         run: python main.py
