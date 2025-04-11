@@ -214,7 +214,7 @@ if __name__ == "__main__":
             message += (
                 f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
                 f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n   "
-                f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n"
+                f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n   📈 Potensi Profit: {r['profit_pct']}%\n"
             )
         send_telegram_message(message)
         logging.info("✅ Sinyal berhasil dikirim ke Telegram.")
