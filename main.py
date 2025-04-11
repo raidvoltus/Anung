@@ -1,5 +1,3 @@
-pip install yfinance lightgbm tensorflow scikit-learn pandas numpy ta joblib requests
-
 import os, time, joblib, requests, logging
 import numpy as np
 import pandas as pd
