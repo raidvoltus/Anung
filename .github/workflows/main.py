@@ -28,4 +28,4 @@ jobs:
           pip install yfinance lightgbm tensorflow scikit-learn pandas numpy ta joblib requests matplotlib
 
       - name: Run Analysis Script
-        run: python your_script.py
+        run: python main.py
