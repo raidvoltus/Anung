@@ -1,0 +1,38 @@
+name: Auto Trading Bot
+
+on:
+  schedule:
+    - cron: '0 7 * * *'  # 14:00 WIB (07:00 UTC)
+  workflow_dispatch:
+
+jobs:
+  run-trading-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Trading Bot
+      run: python trading_bot_self_learning.py
+
+    - name: Commit and Push Changes
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@users.noreply.github.com'
+        git add .
+        git commit -m "Auto-update by trading bot" || echo "No changes to commit"
+        git push
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
+        GIT_ASKPASS: /dev/null
