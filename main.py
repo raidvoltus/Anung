@@ -142,7 +142,7 @@ def analyze_stock(ticker):
         model_low = joblib.load(MODEL_LOW_PATH)
         model_lstm = load_model(MODEL_LSTM_PATH)
 
-    pred_high = model_high.predict(X.iloc[-1:].values)[0]
+    pred_high = model_high.predict(X.iloc[-1:])[0]
     pred_low = model_low.predict(X.iloc[-1:].values)[0]
     current_price = df["Close"].iloc[-1]
     mae = mean_absolute_error(y_high, model_high.predict(X))
