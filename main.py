@@ -274,7 +274,7 @@ def plot_probability_distribution(all_results):
 # --- [MAIN EXECUTION] ---
 if __name__ == "__main__":
     logging.info("🚀 Memulai analisis saham...")
-    with ThreadPoolExecutor(max_workers=7) as executor:
+    with ThreadPoolExecutor(max_workers=num_workers) as executor:
         results = list(executor.map(analyze_stock, STOCK_LIST))
     results = [r for r in results if r]
 
