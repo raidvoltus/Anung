@@ -166,6 +166,7 @@ def analyze_stock(ticker):
         model_low = joblib.load(model_low_path)
         model_cls = joblib.load(model_cls_path)
         model_lstm = tf.keras.models.load_model(model_lstm_path)
+        model_lstm.compile(optimizer="adam", loss="mean_squared_error")
 
     pred_high = model_high.predict(X.iloc[-1:])[0]
     pred_low = model_low.predict(X.iloc[-1:])[0]
