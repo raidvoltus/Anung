@@ -4,6 +4,7 @@ import pandas as pd
 import yfinance as yf
 import lightgbm as lgb
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from ta import momentum, trend, volatility, volume
 from datetime import datetime
 from tensorflow.keras.models import Sequential, load_model
@@ -215,6 +216,20 @@ def analyze_stock(ticker):
         "probability": round(prob_up, 4)
     }
 
+def plot_probability_distribution(all_results):
+    probs = [r["probability"] for r in all_results if r]
+    plt.figure(figsize=(10, 6))
+    plt.hist(probs, bins=20, color='skyblue', edgecolor='black')
+    plt.axvline(0.75, color='red', linestyle='--', label='Threshold 0.75')
+    plt.title("Distribusi Probabilitas Kenaikan Saham")
+    plt.xlabel("Probabilitas Naik")
+    plt.ylabel("Jumlah Saham")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("probability_distribution.png")
+    plt.close()
+    
 if __name__ == "__main__":
     logging.info("🚀 Memulai analisis saham...")
     with ThreadPoolExecutor(max_workers=1) as executor:
