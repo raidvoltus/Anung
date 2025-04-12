@@ -195,7 +195,7 @@ def analyze_stock(ticker):
         current_price = df["Close"].iloc[-1]
 
         # Validasi probabilitas
-        if prob_up < 0.075:
+        if prob_up < 0.75:
             return None
 
         # Validasi prediksi yang tidak logis
