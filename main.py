@@ -118,6 +118,7 @@ def calculate_indicators(df):
     df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=10).adx()
     df["future_high"] = df["High"].shift(-1)
     df["future_low"] = df["Low"].shift(-1)
+    df["future_close"] = df["Close"].shift(-1)
     return df.dropna()
 
 # --- [MODEL TRAINING] ---
