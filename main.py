@@ -96,6 +96,23 @@ def get_stock_data(ticker):
     except Exception as e:
         logging.error(f"Error mengambil data {ticker}: {e}")
     return None
+    
+# Fungsi Heikin Ashi
+def add_heikin_ashi(df):
+    ha_df = df.copy()
+    ha_df["HA_Close"] = (df["Open"] + df["High"] + df["Low"] + df["Close"]) / 4
+    ha_open = [(df["Open"].iloc[0] + df["Close"].iloc[0]) / 2]
+    for i in range(1, len(df)):
+        ha_open.append((ha_open[i - 1] + ha_df["HA_Close"].iloc[i - 1]) / 2)
+    ha_df["HA_Open"] = ha_open
+    ha_df["HA_High"] = ha_df[["HA_Open", "HA_Close", "High"]].max(axis=1)
+    ha_df["HA_Low"] = ha_df[["HA_Open", "HA_Close", "Low"]].min(axis=1)
+    
+    df["HA_Open"] = ha_df["HA_Open"]
+    df["HA_Close"] = ha_df["HA_Close"]
+    df["HA_High"] = ha_df["HA_High"]
+    df["HA_Low"] = ha_df["HA_Low"]
+    return df
 
 def calculate_indicators(df):
     df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=10).average_true_range()
@@ -118,8 +135,28 @@ def calculate_indicators(df):
     df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=10).adx()
     df["future_high"] = df["High"].shift(-1)
     df["future_low"] = df["Low"].shift(-1)
+    df = add_heikin_ashi(df)
     return df.dropna()
 
+# Fungsi untuk menentukan sinyal beli atau jual
+def generate_signal(df):
+    if df is None or len(df) < 20:
+        return None
+
+    last_row = df.iloc[-1]
+
+    # Tambahkan filter Heikin Ashi bullish candle
+    if last_row["HA_Close"] <= last_row["HA_Open"]:
+        logging.info("Candle HA terakhir bearish, abaikan sinyal.")
+        return None
+
+    if last_row["Close"] > last_row["EMA20"] > last_row["EMA50"] and last_row["RSI"] < 70:
+        return "BUY"
+    elif last_row["Close"] < last_row["EMA20"] < last_row["EMA50"] and last_row["RSI"] > 30:
+        return "SELL"
+    else:
+        return None
+        
 # --- [MODEL TRAINING] ---
 def train_lightgbm(X, y):
     model = lgb.LGBMRegressor(n_estimators=500, learning_rate=0.05)
