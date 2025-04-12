@@ -244,7 +244,7 @@ if __name__ == "__main__":
     if results:
         plot_probability_distribution(results)
         top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
-        message = "<b>📊 Sinyal Trading Hari Ini:</b>\n"
+        message = "<b>📊 Woy Kontil Clans:</b>\n"
         for r in top_5:
             message += (
                 f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
