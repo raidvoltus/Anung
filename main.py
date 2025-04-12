@@ -176,20 +176,37 @@ def analyze_stock(ticker):
         last_modified = datetime.fromtimestamp(os.path.getmtime(MODEL_HIGH_PATH))
         if (datetime.now() - last_modified).days < RETRAIN_INTERVAL:
             retrain = False
+            
+if retrain:
+    # Melakukan pelatihan ulang jika retrain=True
+    model_high = train_lightgbm(X_train, y_train_high)
+    model_low = train_lightgbm(X_train, y_train_low)
+    model_cls = train_classifier(X_train_cls, y_train_cls)
+    model_lstm = train_lstm(X_train, y_train_high)
 
-    if retrain:
-        model_high = train_lightgbm(X_train, y_train_high)
-        model_low = train_lightgbm(X_train, y_train_low)
-        model_cls = train_classifier(X_train_cls, y_train_cls)
-        model_lstm = train_lstm(X_train, y_train_high)
-        joblib.dump(model_high, MODEL_HIGH_PATH)
-        joblib.dump(model_low, MODEL_LOW_PATH)
-        joblib.dump(model_cls, "model_cls.txt")
-        model_lstm.save(MODEL_LSTM_PATH)
+    # Simpan model ke file
+    joblib.dump(model_high, model_high_path)
+    joblib.dump(model_low, model_low_path)
+    joblib.dump(model_cls, model_cls_path)
+    model_lstm.save(model_lstm_path)
+else:
+    # Jika tidak retrain, coba load model yang ada
+    if os.path.exists(model_cls_path):
+        model_cls = joblib.load(model_cls_path)
     else:
-        model_high = joblib.load(MODEL_HIGH_PATH)
-        model_low = joblib.load(MODEL_LOW_PATH)
-model_path = os.path.join(os.path.dirname(__file__), "model_cls.txt")
+        print("Model klasifikasi tidak ditemukan, training ulang...")
+        model_cls = train_classifier(X, y)  # pelatihan ulang model_cls
+        joblib.dump(model_cls, model_cls_path)
+
+    # Load model_high dan model_low jika ada
+    model_high = joblib.load(model_high_path) if os.path.exists(model_high_path) else None
+    model_low = joblib.load(model_low_path) if os.path.exists(model_low_path) else None
+
+# Model LSTM tidak perlu dibuka lagi, cukup jika file ada
+if os.path.exists(model_lstm_path):
+    model_lstm = keras.models.load_model(model_lstm_path)
+else:
+    model_lstm = None
 
 try:
     model_cls = joblib.load(model_path)
