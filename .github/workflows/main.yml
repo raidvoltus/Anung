@@ -26,7 +26,7 @@ jobs:
     - name: Set up Telegram Token and Chat ID
       run: |
         echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> $GITHUB_ENV
-        echo "TELEGRAM_CHAT_ID=${{ secrets.CHAT_ID }}" >> $GITHUB_ENV
+        echo "CHAT_ID=${{ secrets.CHAT_ID }}" >> $GITHUB_ENV
 
     - name: Run Trading Bot and Capture Log
       run: |
