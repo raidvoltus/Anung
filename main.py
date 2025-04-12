@@ -73,7 +73,6 @@ log_handler = RotatingFileHandler("trading.log", maxBytes=5*1024*1024, backupCou
 log_handler.setFormatter(log_formatter)
 logging.getLogger().addHandler(log_handler)
 logging.basicConfig(level=logging.INFO)
-logging.info(f"Rekomendasi akhir: {recommendations}")
 
 def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
