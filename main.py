@@ -195,9 +195,12 @@ try:
 except FileNotFoundError:
     print("Model klasifikasi tidak ditemukan, training ulang...")
 
-    # TODO: Training ulang model_cls di sini
-    # Misalnya:
-    # model_cls = train_classifier(X_train, y_train)
+if not os.path.exists("model_cls.txt"):
+    # Training model_cls dari awal
+    model_cls = train_classifier(X, y)  # asumsi kamu punya fungsi ini
+    joblib.dump(model_cls, "model_cls.txt")
+else:
+    model_cls = joblib.load("model_cls.txt")
 
     joblib.dump(model_cls, model_path)
         model_lstm = load_model(MODEL_LSTM_PATH)
