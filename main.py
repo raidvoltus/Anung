@@ -1,4 +1,3 @@
-# --- [IMPORT & SETUP] ---
 import os, time, joblib, requests, logging
 import numpy as np
 import pandas as pd
@@ -173,7 +172,13 @@ def analyze_stock(ticker):
     prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]
     current_price = df["Close"].iloc[-1]
 
+    # Validasi probabilitas
     if prob_up < 0.075:
+        return None
+
+    # Validasi prediksi yang tidak logis
+    if pred_high <= current_price or pred_low >= current_price:
+        logging.warning(f"Sinyal tidak valid untuk {ticker} - TP: {pred_high}, SL: {pred_low}, Harga: {current_price}")
         return None
 
     take_profit = pred_high
