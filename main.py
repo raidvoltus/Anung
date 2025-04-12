@@ -220,15 +220,15 @@ else:
     pred_high = model_high.predict(X.iloc[-1:])[0]
     pred_low = model_low.predict(X.iloc[-1:])[0]
     prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]
+    
+    if prob_up < 0.075:
+    return None
+    
     current_price = df["Close"].iloc[-1]
 
     # Log hasil
     logging.info(f"{ticker} - Harga: {current_price:.2f}, Pred High: {pred_high:.2f}, "
                  f"Pred Low: {pred_low:.2f}, Probabilitas Naik: {prob_up:.2%}")
-
-    # Filter sinyal
-    if prob_up < 0.075:
-        return None
 
     action = "beli" if pred_high > current_price else "jual"
     potential_profit_pct = ((pred_high - current_price) / current_price) * 100
