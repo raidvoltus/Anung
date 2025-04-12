@@ -220,27 +220,22 @@ else:
     pred_high = model_high.predict(X.iloc[-1:])[0]
     pred_low = model_low.predict(X.iloc[-1:])[0]
     prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]
-    
+
     if prob_up < 0.075:
         return None
-    
+
+    pred_high = model_high.predict(X.iloc[-1:])[0]
+    pred_low = model_low.predict(X.iloc[-1:])[0]
     current_price = df["Close"].iloc[-1]
 
-    # Log hasil
-    logging.info(f"{ticker} - Harga: {current_price:.2f}, Pred High: {pred_high:.2f}, "
-                 f"Pred Low: {pred_low:.2f}, Probabilitas Naik: {prob_up:.2%}")
-
-    action = "beli" if pred_high > current_price else "jual"
-    potential_profit_pct = ((pred_high - current_price) / current_price) * 100
+    logging.info(f"{ticker} - Harga: {current_price:.2f}, Pred High: {pred_high:.2f}, Pred Low: {pred_low:.2f}, Probabilitas Naik: {prob_up:.2%}")
 
     return {
         "ticker": ticker,
-        "harga": round(current_price, 2),
-        "take_profit": round(pred_high, 2),
-        "stop_loss": round(pred_low, 2),
-        "aksi": action,
-        "profit_pct": round(potential_profit_pct, 2),
-        "probability": round(prob_up, 4)
+        "current_price": current_price,
+        "pred_high": pred_high,
+        "pred_low": pred_low,
+        "prob_up": prob_up
     }
 
 def plot_probability_distribution(all_results):
