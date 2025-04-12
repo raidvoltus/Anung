@@ -147,12 +147,21 @@ def train_lstm(X, y):
 
 # --- [MAIN ANALYSIS FUNCTION] ---
 def analyze_stock(ticker):
-    df = get_stock_data(ticker)
-    if df is None:
-        return None
-    if len(X) == 0 or len(y_high) == 0:
-        logging.warning(f"Data kosong untuk {ticker}, lewati analisis.")
-        return None
+    try:
+        df = load_stock_data(ticker)
+
+        if df is None or df.empty:
+            logging.warning(f"Data kosong untuk {ticker}, lewati analisis.")
+            return None
+
+        X, y_high, y_low, y_class = create_features_and_targets(df)
+
+        if X.empty or y_high.empty:
+            logging.warning(f"Data tidak cukup untuk {ticker}, lewati analisis.")
+            return None
+
+        X_train, _, y_train_high, _ = train_test_split(X, y_high, test_size=0.2)
+
     df = calculate_indicators(df)
     
     features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_50", "SMA_200", "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
