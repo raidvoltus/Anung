@@ -150,6 +150,9 @@ def analyze_stock(ticker):
     df = get_stock_data(ticker)
     if df is None:
         return None
+    if len(X) == 0 or len(y_high) == 0:
+        logging.warning(f"Data kosong untuk {ticker}, lewati analisis.")
+        return None
     df = calculate_indicators(df)
     
     features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_50", "SMA_200", "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
