@@ -221,19 +221,19 @@ if __name__ == "__main__":
         results = list(executor.map(analyze_stock, STOCK_LIST))
     results = [r for r in results if r]
 
-    if results:
-        top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
-        message = "<b>📊 Top 5 Sinyal Trading Hari Ini:</b>\n"
-        for r in top_5:
-            message += (
-                f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
-                f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n   "
-                f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n   📈 Potensi Profit: {r['profit_pct']}%\n"
-            )
-        send_telegram_message(message)
-        logging.info("✅ Sinyal berhasil dikirim ke Telegram.")
-    else:
-        logging.info("⚠️ Tidak ada sinyal yang memenuhi syarat hari ini.")
+if results:
+    top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
+    recommendations = top_5  # <-- Tambahkan ini
+    message = "<b>📊 Top 5 Sinyal Trading Hari Ini:</b>\n"
+    for r in top_5:
+        message += (
+            f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
+            f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n   "
+            f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n   📈 Potensi Profit: {r['profit_pct']}%\n"
+        )
+    send_telegram_message(message)
+    logging.info("✅ Sinyal berhasil dikirim ke Telegram.")
+    logging.info(f"Rekomendasi akhir: {recommendations}")  # <-- Dipindah ke sini
 
     pd.DataFrame(results).to_csv(BACKUP_CSV_PATH, index=False)
     logging.info(f"✅ Data disimpan ke {BACKUP_CSV_PATH}")
