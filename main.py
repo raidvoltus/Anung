@@ -200,6 +200,8 @@ def analyze_stock(ticker):
         pred_low = model_low.predict(X.iloc[-1:])[0]
         prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]
         current_price = df["Close"].iloc[-1]
+        pred_close = model_close.predict(X.iloc[-1:])[0]
+        "pred_close": pred_close,
 
         # Validasi probabilitas
         if prob_up < 0.075:
@@ -256,6 +258,7 @@ if __name__ == "__main__":
             message += (
                 f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
                 f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n   "
+                f"   🔮 Prediksi Harga Penutupan Besok: {r['pred_close']:.2f}\n"
                 f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n   📈 Potensi Profit: {r['profit_pct']}%\n"
                 f"   ✅ Probabilitas: {r['probability']*100:.2f}%\n"
             )
