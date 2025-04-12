@@ -222,7 +222,7 @@ else:
     prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]
     
     if prob_up < 0.075:
-    return None
+        return None
     
     current_price = df["Close"].iloc[-1]
 
