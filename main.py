@@ -208,27 +208,21 @@ if os.path.exists(model_lstm_path):
 else:
     model_lstm = None
 
-try:
+# Cek dan load model klasifikasi
+if os.path.exists(model_path):
     model_cls = joblib.load(model_path)
-except FileNotFoundError:
-    print("Model klasifikasi tidak ditemukan, training ulang...")
-
-if not os.path.exists("model_cls.txt"):
-    # Training model_cls dari awal
-    model_cls = train_classifier(X, y)  # asumsi kamu punya fungsi ini
-    joblib.dump(model_cls, "model_cls.txt")
 else:
-    model_cls = joblib.load("model_cls.txt")
-
+    print("Model klasifikasi tidak ditemukan, training ulang...")
+    model_cls = train_classifier(X, y)  # Pastikan X dan y tersedia sebelumnya
     joblib.dump(model_cls, model_path)
-        model_lstm = load_model(MODEL_LSTM_PATH)
 
-    pred_high = model_high.predict(X.iloc[-1:])[0]
-    pred_low = model_low.predict(X.iloc[-1:])[0]
-    prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]  # Probabilitas harga naik
-    current_price = df["Close"].iloc[-1]
+# Prediksi
+pred_high = model_high.predict(X.iloc[-1:])[0]
+pred_low = model_low.predict(X.iloc[-1:])[0]
+prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]  # Probabilitas harga naik
+current_price = df["Close"].iloc[-1]
 
-    logging.info(f"{ticker} - Harga: {current_price:.2f}, Pred High: {pred_high:.2f}, Pred Low: {pred_low:.2f}, Probabilitas Naik: {prob_up:.2%}")
+logging.info(f"{ticker} - Harga: {current_price:.2f}, Pred High: {pred_high:.2f}, Pred Low: {pred_low:.2f}, Probabilitas Naik: {prob_up:.2%}")
 
     if prob_up < 0.075:
         logging.info(f"{ticker} ditolak: Probabilitas {prob_up:.2%} < 7.5%")
