@@ -180,15 +180,18 @@ def analyze_stock(ticker):
         if retrain:
             model_high = train_lightgbm(X_train, y_train_high)
             model_low = train_lightgbm(X_train, y_train_low)
+            model_close = train_lightgbm(X_train_close, y_train_close)
             model_cls = train_classifier(X_train_cls, y_train_cls)
             model_lstm = train_lstm(X_train, y_train_high)
             joblib.dump(model_high, model_high_path)
             joblib.dump(model_low, model_low_path)
+            joblib.dump(model_close, model_close_path)
             joblib.dump(model_cls, model_cls_path)
             model_lstm.save(model_lstm_path)
         else:
             model_high = joblib.load(model_high_path)
             model_low = joblib.load(model_low_path)
+            model_close = joblib.load(model_close_path)
             model_cls = joblib.load(model_cls_path)
             model_lstm = tf.keras.models.load_model(model_lstm_path)
             model_lstm.compile(optimizer="adam", loss="mean_squared_error")
