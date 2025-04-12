@@ -146,13 +146,66 @@ def train_lstm(X, y):
     return model
 
 # --- [MAIN ANALYSIS FUNCTION] ---
-def analyze_stock(ticker):
-    try:
-        df = get_stock_data(ticker)
+def calculate_dynamic_thresholds(data):
+    atr_ratios = []
+    avg_volumes = []
+    for ticker in data:
+        df = data[ticker]
+        if df is not None and len(df) > 20:
+            current_price = df["Close"].iloc[-1]
+            atr_now = df["ATR"].iloc[-1]
+            atr_ratio = atr_now / current_price
+            avg_volume = df["Volume"].iloc[-20:].mean()
 
-        if df is None or df.empty:
-            logging.warning(f"Data kosong untuk {ticker}, lewati analisis.")
-            return None
+            atr_ratios.append(atr_ratio)
+            avg_volumes.append(avg_volume)
+
+    atr_threshold = pd.Series(atr_ratios).quantile(0.25)
+    volume_threshold = pd.Series(avg_volumes).quantile(0.25)
+    return atr_threshold, volume_threshold
+    
+def analyze_all_stocks(stock_list):
+    results = []
+    data_dict = {}
+
+    # Tahap 1: Ambil semua data dulu untuk threshold dinamis
+    for ticker in stock_list:
+        try:
+            df = download_stock_data(ticker)
+            if df is not None:
+                df = calculate_technical_indicators(df)
+                data_dict[ticker] = df
+        except Exception as e:
+            logging.error(f"Error mengambil data untuk {ticker}: {e}")
+            data_dict[ticker] = None
+
+    # Hitung threshold
+    atr_thresh, vol_thresh = calculate_dynamic_thresholds(data_dict)
+    logging.info(f"Threshold ATR/Close: {atr_thresh}, Volume: {vol_thresh}")
+
+    # Tahap 2: Filter dan analisa
+    for ticker, df in data_dict.items():
+        if df is not None:
+            try:
+                current_price = df["Close"].iloc[-1]
+                atr_now = df["ATR"].iloc[-1]
+                avg_volume = df["Volume"].iloc[-20:].mean()
+                atr_ratio = atr_now / current_price
+
+                if atr_ratio < atr_thresh:
+                    logging.info(f"{ticker} dilewati karena ATR/Close rendah: {atr_ratio}")
+                    continue
+                if avg_volume < vol_thresh:
+                    logging.info(f"{ticker} dilewati karena Volume rendah: {avg_volume}")
+                    continue
+
+                result = analyze_stock(df, ticker)
+                if result:
+                    results.append(result)
+            except Exception as e:
+                logging.error(f"Error menganalisa {ticker}: {e}")
+
+    return results
 
         df = calculate_indicators(df)
 
@@ -202,7 +255,12 @@ def analyze_stock(ticker):
         if pred_high <= current_price or pred_low >= current_price:
             logging.warning(f"Sinyal tidak valid untuk {ticker} - TP: {pred_high}, SL: {pred_low}, Harga: {current_price}")
             return None
-
+            
+        profit_pct_temp = (pred_high - current_price) / current_price * 100
+        if profit_pct_temp < 3.0:
+            logging.info(f"Profit potensial kurang dari 3% untuk {ticker}, dilewati.")
+            return None
+            
         take_profit = pred_high
         stop_loss = pred_low
         profit_pct = round((take_profit - current_price) / current_price * 100, 2)
