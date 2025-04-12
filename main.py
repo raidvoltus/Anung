@@ -232,7 +232,7 @@ for r in top_5:
         f"📈 Potensi Profit: {r['profit_pct']}%\n   "
         f"🎯 Probabilitas: {r['probability']*100:.2f}%\n"
     )
-        send_telegram_message(message)
+    send_telegram_message(message)
         logging.info("✅ Sinyal berhasil dikirim ke Telegram.")
     else:
         logging.info("⚠️ Tidak ada sinyal yang memenuhi syarat hari ini.")
