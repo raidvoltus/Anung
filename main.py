@@ -26,12 +26,11 @@ logging.basicConfig(
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
-MODEL_HIGH_PATH = "model_high.txt"
-MODEL_LOW_PATH = "model_low.txt"
-MODEL_LSTM_PATH = "model_lstm.keras"
+model_cls_path = os.path.join(os.path.dirname(__file__), "model_cls.txt")
+model_high_path = os.path.join(os.path.dirname(__file__), "model_high.txt")
+model_low_path = os.path.join(os.path.dirname(__file__), "model_low.txt")
+model_lstm_path = os.path.join(os.path.dirname(__file__), "model_lstm.h5")
 BACKUP_CSV_PATH = "stock_data_backup.csv"
-model_path = os.path.join(os.path.dirname(__file__), "model_cls.txt")
-model_cls = joblib.load(model_path)
 ATR_MULTIPLIER = 2.5
 RETRAIN_INTERVAL = 7
 
