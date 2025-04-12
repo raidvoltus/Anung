@@ -23,15 +23,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run Trading Bot and Capture Log
-      run: |
-        python main.py > trading.log 2>&1 || echo "Script gagal, cek log di bawah"
-        cat trading.log
-
     - name: Set up Telegram Token and Chat ID
       run: |
         echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> $GITHUB_ENV
         echo "TELEGRAM_CHAT_ID=${{ secrets.CHAT_ID }}" >> $GITHUB_ENV
+
+    - name: Run Trading Bot and Capture Log
+      run: |
+        python main.py > trading.log 2>&1 || echo "Script gagal, cek log di bawah"
+        cat trading.log
 
     - name: Commit and Push Changes
       run: |
