@@ -205,7 +205,27 @@ def analyze_all_stocks(stock_list):
             except Exception as e:
                 logging.error(f"Error menganalisa {ticker}: {e}")
 
-    return results
+    # Kode yang terindetasi dengan benar
+    df = calculate_indicators(df)
+
+    features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_50", "SMA_200", "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
+    df = df.dropna(subset=features + ["future_high", "future_low"])
+    X = df[features]
+    y_high = df["future_high"]
+    y_low = df["future_low"]
+    y_binary = (df["future_high"] > df["Close"]).astype(int)
+
+    X_train, _, y_train_high, _ = train_test_split(X, y_high, test_size=0.2)
+    _, _, y_train_low, _ = train_test_split(X, y_low, test_size=0.2)
+    X_train_cls, _, y_train_cls, _ = train_test_split(X, y_binary, test_size=0.2)
+
+    retrain = True
+    if os.path.exists(model_high_path) and os.path.exists(model_low_path) and os.path.exists(model_cls_path) and os.path.exists(model_lstm_path):
+        last_modified = datetime.fromtimestamp(os.path.getmtime(model_high_path))
+        if (datetime.now() - last_modified).days < RETRAIN_INTERVAL:
+            retrain = False
+
+    return results  # Pastikan return di akhir
 
         df = calculate_indicators(df)
 
