@@ -188,7 +188,18 @@ def analyze_stock(ticker):
     else:
         model_high = joblib.load(MODEL_HIGH_PATH)
         model_low = joblib.load(MODEL_LOW_PATH)
-        model_cls = joblib.load("model_cls.txt")
+model_path = os.path.join(os.path.dirname(__file__), "model_cls.txt")
+
+try:
+    model_cls = joblib.load(model_path)
+except FileNotFoundError:
+    print("Model klasifikasi tidak ditemukan, training ulang...")
+
+    # TODO: Training ulang model_cls di sini
+    # Misalnya:
+    # model_cls = train_classifier(X_train, y_train)
+
+    joblib.dump(model_cls, model_path)
         model_lstm = load_model(MODEL_LSTM_PATH)
 
     pred_high = model_high.predict(X.iloc[-1:])[0]
