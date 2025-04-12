@@ -37,10 +37,19 @@ STOCK_LIST = ["BBCA.JK", "BBRI.JK", "BMRI.JK", "ASII.JK"]  # contoh pendek, gant
 
 # --- [UTILITY FUNCTIONS] ---
 def send_telegram_message(message):
+    if not TELEGRAM_TOKEN or not CHAT_ID:
+        logging.error("Telegram token atau chat_id tidak ditemukan. Pastikan environment variable TELEGRAM_TOKEN dan TELEGRAM_CHAT_ID sudah di-set.")
+        return
+
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         data = {"chat_id": CHAT_ID, "text": message, "parse_mode": "HTML"}
-        requests.post(url, data=data)
+        response = requests.post(url, data=data)
+        if response.status_code == 200:
+            logging.info("✅ Pesan berhasil dikirim ke Telegram.")
+        else:
+            logging.error(f"❌ Gagal mengirim pesan ke Telegram. Status code: {response.status_code}")
+            logging.error(f"Response: {response.text}")
     except Exception as e:
         logging.error(f"Telegram error: {e}")
 
