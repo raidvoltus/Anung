@@ -140,8 +140,52 @@ def calculate_indicators(df):
 
 # Fungsi untuk menentukan sinyal beli atau jual
 def generate_signal(df):
-    if df is None or len(df) < 20:
-        return None
+    signal = []
+    
+    # Hitung Average True Range (ATR)
+    atr = df["ATR"].iloc[-1]
+    
+    # Harga terakhir (close)
+    last_close = df["Close"].iloc[-1]
+    
+    # Hitung level support dan resistance terbaru
+    support = df["Support"].iloc[-1]
+    resistance = df["Resistance"].iloc[-1]
+    
+    # Menghitung TP dan SL
+    # Untuk posisi BUY (long)
+    tp = resistance
+    sl = support
+    
+    # Menggunakan ATR untuk jarak TP dan SL, misalnya 1x ATR untuk SL dan 2x ATR untuk TP
+    tp_price = last_close + 2 * atr  # TP 2x ATR dari harga terakhir
+    sl_price = last_close - atr      # SL 1x ATR dari harga terakhir
+    
+    # Menggunakan support dan resistance jika TP dan SL lebih realistis
+    tp = min(tp, tp_price)
+    sl = max(sl, sl_price)
+
+    # Tentukan kondisi untuk sinyal
+    if df["RSI"].iloc[-1] > 70:  # Overbought (sinyal sell)
+        signal.append({
+            "signal": "SELL",
+            "tp": last_close - 2 * atr,  # TP di bawah harga sekarang
+            "sl": last_close + atr       # SL di atas harga sekarang
+        })
+    elif df["RSI"].iloc[-1] < 30:  # Oversold (sinyal buy)
+        signal.append({
+            "signal": "BUY",
+            "tp": tp,
+            "sl": sl
+        })
+    else:  # Tidak ada sinyal yang valid
+        signal.append({
+            "signal": "HOLD",
+            "tp": None,
+            "sl": None
+        })
+
+    return signal
 
     last_row = df.iloc[-1]
 
