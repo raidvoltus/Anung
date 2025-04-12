@@ -224,15 +224,13 @@ if __name__ == "__main__":
     if results:
         top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
         message = "<b>📊 Top 5 Sinyal Trading Hari Ini:</b>\n"
-for r in top_5:
-    message += (
-        f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
-        f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n   "
-        f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n   "
-        f"📈 Potensi Profit: {r['profit_pct']}%\n   "
-        f"🎯 Probabilitas: {r['probability']*100:.2f}%\n"
-    )
-    send_telegram_message(message)
+        for r in top_5:
+            message += (
+                f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
+                f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n   "
+                f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n   📈 Potensi Profit: {r['profit_pct']}%\n"
+            )
+        send_telegram_message(message)
         logging.info("✅ Sinyal berhasil dikirim ke Telegram.")
     else:
         logging.info("⚠️ Tidak ada sinyal yang memenuhi syarat hari ini.")
