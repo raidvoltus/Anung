@@ -23,7 +23,7 @@ logging.basicConfig(
 
 # --- [ENV VARIABLES & PATHS] ---
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
-CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+CHAT_ID = os.environ.get("CHAT_ID")
 model_cls_path = "model_cls.txt"
 model_high_path = "model_high.txt"
 model_low_path = "model_low.txt"
