@@ -120,6 +120,63 @@ def calculate_indicators(df):
     df["future_low"] = df["Low"].shift(-1)
     return df.dropna()
 
+def generate_signal(df):
+    signals = []
+    
+    # Ambil data terbaru
+    atr = df["ATR"].iloc[-1]
+    last_close = df["Close"].iloc[-1]
+    support = df["Support"].iloc[-1]
+    resistance = df["Resistance"].iloc[-1]
+    rsi = df["RSI"].iloc[-1]
+    
+    if rsi > 70:  # Kondisi Overbought → Sinyal SELL (short)
+        # Hitung TP dan SL berdasarkan ATR untuk posisi SELL
+        tp_sell_atr = last_close - 2 * atr  # Target hasil jika harga turun
+        sl_sell_atr = last_close + atr      # Batas rugi jika harga naik
+        
+        # Untuk posisi SELL, TP idealnya tidak lebih rendah dari support
+        # dan SL hendaknya tidak lebih tinggi dari resistance.
+        # Gunakan:
+        #   TP = nilai yang lebih dekat dengan harga (lebih tinggi) antara support dan perhitungan ATR
+        #   SL = nilai yang lebih dekat dengan harga (lebih rendah) antara resistance dan perhitungan ATR
+        sell_tp = max(support, tp_sell_atr)
+        sell_sl = min(resistance, sl_sell_atr)
+        
+        signals.append({
+            "signal": "SELL",
+            "tp": sell_tp,
+            "sl": sell_sl
+        })
+        
+    elif rsi < 30:  # Kondisi Oversold → Sinyal BUY (long)
+        # Hitung TP dan SL berdasarkan ATR untuk posisi BUY
+        tp_buy_atr = last_close + 2 * atr  # Target hasil jika harga naik
+        sl_buy_atr = last_close - atr      # Batas rugi jika harga turun
+        
+        # Untuk posisi BUY, TP idealnya tidak lebih tinggi dari resistance
+        # dan SL hendaknya tidak lebih rendah dari support.
+        # Gunakan:
+        #   TP = nilai yang lebih dekat ke harga (lebih rendah) antara resistance dan perhitungan ATR
+        #   SL = nilai yang lebih dekat ke harga (lebih tinggi) antara support dan perhitungan ATR
+        buy_tp = min(resistance, tp_buy_atr)
+        buy_sl = max(support, sl_buy_atr)
+        
+        signals.append({
+            "signal": "BUY",
+            "tp": buy_tp,
+            "sl": buy_sl
+        })
+        
+    else:  # Tidak ada sinyal yang memenuhi syarat
+        signals.append({
+            "signal": "HOLD",
+            "tp": None,
+            "sl": None
+        })
+    
+    return signals
+    
 # --- [MODEL TRAINING] ---
 def train_lightgbm(X, y):
     model = lgb.LGBMRegressor(n_estimators=500, learning_rate=0.05)
@@ -195,7 +252,7 @@ def analyze_stock(ticker):
         current_price = df["Close"].iloc[-1]
 
         # Validasi probabilitas
-        if prob_up < 0.075:
+        if prob_up < 0.75:
             return None
 
         # Validasi prediksi yang tidak logis
