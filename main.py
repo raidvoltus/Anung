@@ -1,9 +1,3 @@
-main.py
-
-# === Instalasi Dependensi (Hanya Perlu Sekali) ===
-!pip install yfinance lightgbm tensorflow joblib requests numpy pandas ta
-
-# === Import Library ===
 import os
 import logging
 import sqlite3
