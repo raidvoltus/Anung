@@ -76,7 +76,7 @@ def send_telegram_message(message):
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         data = {"chat_id": CHAT_ID, "text": message, "parse_mode": "HTML"}
         response = requests.post(url, data=data)
-        if response.status_code == 200:
+        if response.status_code == 30:
             logging.info("✅ Pesan berhasil dikirim ke Telegram.")
         else:
             logging.error(f"❌ Gagal mengirim pesan ke Telegram. Status code: {response.status_code}")
@@ -87,8 +87,8 @@ def send_telegram_message(message):
 def get_stock_data(ticker):
     try:
         stock = yf.Ticker(ticker)
-        data = stock.history(period="5y", interval="1d")
-        if data is not None and not data.empty and len(data) >= 200:
+        data = stock.history(period="90d", interval="1d")
+        if data is not None and not data.empty and len(data) >= 30:
             data["ticker"] = ticker
             return data
         else:
