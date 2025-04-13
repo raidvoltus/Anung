@@ -82,6 +82,18 @@ def send_telegram_message(message):
     except Exception as e:
         logging.error(f"Telegram error: {e}")
 
+def validate_stock_data(data, ticker):
+    if data is None or data.empty:
+        logging.warning(f"[{ticker}] Data kosong dari Yahoo Finance.")
+        return False
+    if len(data) < 30:
+        logging.warning(f"[{ticker}] Data terlalu sedikit: hanya {len(data)} baris.")
+        return False
+    if data.isnull().sum().sum() > 0:
+        logging.warning(f"[{ticker}] Terdapat nilai NaN pada data.")
+        return False
+    return True
+    
 # === Ambil Data Saham ===
 def get_stock_data(ticker):
     try:
