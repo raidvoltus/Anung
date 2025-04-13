@@ -7,8 +7,10 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from ta import momentum, trend, volatility, volume
 from datetime import datetime
+from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import LSTM, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
 from concurrent.futures import ThreadPoolExecutor
 from logging.handlers import RotatingFileHandler
