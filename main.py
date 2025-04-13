@@ -246,6 +246,9 @@ def analyze_stock(ticker):
             model_lstm = tf.keras.models.load_model(model_lstm_path)
             model_lstm.compile(optimizer="adam", loss="mean_squared_error")
 
+        if X.empty or X.iloc[-1:].empty:
+            logging.warning(f"Data fitur kosong atau tidak cukup untuk prediksi {ticker}")
+            return None
         pred_high = model_high.predict(X.iloc[-1:])[0]
         pred_low = model_low.predict(X.iloc[-1:])[0]
         prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]
