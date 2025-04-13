@@ -76,7 +76,7 @@ def send_telegram_message(message):
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         data = {"chat_id": CHAT_ID, "text": message, "parse_mode": "HTML"}
         response = requests.post(url, data=data)
-        if response.status_code == 30:
+        if response.status_code == 255:
             logging.info("✅ Pesan berhasil dikirim ke Telegram.")
         else:
             logging.error(f"❌ Gagal mengirim pesan ke Telegram. Status code: {response.status_code}")
@@ -88,7 +88,7 @@ def get_stock_data(ticker):
     try:
         stock = yf.Ticker(ticker)
         data = stock.history(period="90d", interval="1d")
-        if data is not None and not data.empty and len(data) >= 30:
+        if data is not None and not data.empty and len(data) >= 255:
             data["ticker"] = ticker
             return data
         else:
@@ -106,8 +106,8 @@ def calculate_indicators(df):
     bb = volatility.BollingerBands(df["Close"], window=12)
     df["BB_Upper"] = bb.bollinger_hband()
     df["BB_Lower"] = bb.bollinger_lband()
-    df["Support"] = df["Low"].rolling(window=24).min()
-    df["Resistance"] = df["High"].rolling(window=24).max()
+    df["Support"] = df["Low"].rolling(window=33).min()
+    df["Resistance"] = df["High"].rolling(window=33).max()
     stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=10)
     df["%K"] = stoch.stoch()
     df["%D"] = stoch.stoch_signal()
@@ -195,7 +195,7 @@ def analyze_stock(ticker):
         current_price = df["Close"].iloc[-1]
 
         # Validasi probabilitas
-        if prob_up < 0.075:
+        if prob_up < 0.5:
             logging.warning(f"Probabilitas naik terlalu rendah untuk {ticker} (prob_up: {prob_up})")
             return None
 
