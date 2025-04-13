@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-trading-bot:
+  run-Anung:
     runs-on: ubuntu-latest
 
     steps:
