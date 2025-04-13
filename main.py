@@ -134,18 +134,30 @@ def train_classifier(X, y_binary):
 def train_lstm(X, y):
     # Normalisasi
     scaler = MinMaxScaler()
-    X_scaled = scaler.fit_transform(X
-    X = np.reshape(X.values, (X.shape[0], X.shape[1], 1))
-    model = Sequential([
-        LSTM(64, return_sequences=True, input_shape=(X.shape[1], 1)),
-        Dropout(0.2),
-        LSTM(64),
-        Dropout(0.2),
-        Dense(32, activation='relu'),
-        Dense(1)
-    ])
-    model.compile(optimizer="adam", loss="mean_squared_error")
-    model.fit(X, y, epochs=55, batch_size=32, verbose=1)
+    X_scaled = scaler.fit_transform(X)
+    
+    # Reshape ke format (samples, timesteps, features)
+    X_lstm = np.reshape(X_scaled, (X_scaled.shape[0], 1, X_scaled.shape[1]))
+
+    # Build model
+    model = Sequential()
+    model.add(LSTM(units=64, return_sequences=False, input_shape=(X_lstm.shape[1], X_lstm.shape[2])))
+    model.add(Dropout(0.2))
+    model.add(Dense(1))  # Output: prediksi future_high atau future_low
+
+    model.compile(optimizer='adam', loss='mean_squared_error')
+
+    # Early stopping
+    early_stop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+
+    # Train
+    model.fit(X_lstm, y, 
+              epochs=50, 
+              batch_size=32, 
+              validation_split=0.2, 
+              callbacks=[early_stop],
+              verbose=1)
+
     return model
 
 # --- [MAIN ANALYSIS FUNCTION] ---
