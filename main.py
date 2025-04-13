@@ -124,9 +124,6 @@ def calculate_indicators(df):
 # Load model dan scaler
 model_high = joblib.load('model_high.pkl')
 model_low = joblib.load('model_low.pkl')
-scaler_X = joblib.load('scaler_X.pkl')
-scaler_y_high = joblib.load('scaler_y_high.pkl')
-scaler_y_low = joblib.load('scaler_y_low.pkl')
 
 def generate_signal(df):
     signals = []
