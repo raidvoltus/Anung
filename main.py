@@ -149,14 +149,13 @@ def train_lstm(X, y):
 def analyze_stock(ticker):
     try:
         df = get_stock_data(ticker)
-
         if df is None or df.empty:
             logging.warning(f"Data kosong untuk {ticker}, lewati analisis.")
             return None
 
         df = calculate_indicators(df)
-
-        features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_50", "SMA_200", "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
+        features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_50", "SMA_200", 
+                    "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
         df = df.dropna(subset=features + ["future_high", "future_low"])
         X = df[features]
         y_high = df["future_high"]
@@ -168,7 +167,8 @@ def analyze_stock(ticker):
         X_train_cls, _, y_train_cls, _ = train_test_split(X, y_binary, test_size=0.2)
 
         retrain = True
-        if os.path.exists(model_high_path) and os.path.exists(model_low_path) and os.path.exists(model_cls_path) and os.path.exists(model_lstm_path):
+        if os.path.exists(model_high_path) and os.path.exists(model_low_path) and \
+           os.path.exists(model_cls_path) and os.path.exists(model_lstm_path):
             last_modified = datetime.fromtimestamp(os.path.getmtime(model_high_path))
             if (datetime.now() - last_modified).days < RETRAIN_INTERVAL:
                 retrain = False
@@ -196,11 +196,16 @@ def analyze_stock(ticker):
 
         # Validasi probabilitas
         if prob_up < 0.075:
+            logging.warning(f"Probabilitas naik terlalu rendah untuk {ticker} (prob_up: {prob_up})")
             return None
 
-        # Validasi prediksi yang tidak logis
-        if pred_high <= current_price or pred_low >= current_price:
-            logging.warning(f"Sinyal tidak valid untuk {ticker} - TP: {pred_high}, SL: {pred_low}, Harga: {current_price}")
+        # Menambahkan margin minimal (misal 1%) agar perbandingan TP/SL lebih realistis
+        margin = 0.01  # 1% margin
+
+        if pred_high <= current_price * (1 + margin) or pred_low >= current_price * (1 - margin):
+            logging.warning(
+                f"Sinyal tidak valid untuk {ticker} - TP: {pred_high}, SL: {pred_low}, Harga: {current_price}"
+            )
             return None
 
         take_profit = pred_high
