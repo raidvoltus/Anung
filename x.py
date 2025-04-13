@@ -1,6 +1,6 @@
 import requests
 
-TOKEN = "PASTE_TOKEN_BOT_KAMU_DI_SINI"
+TOKEN = "7627594999:AAE-6GMStrcSgfBylJoE1PoKStOgLDDlcxc"
 URL = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
 
 try:
