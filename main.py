@@ -134,7 +134,7 @@ def calculate_indicators(df):
 
     return df.dropna()
     
-    def generate_btst_signal(df):
+def generate_btst_signal(df):
     signal = (
         (df["MACD_Hist"] > 0) &
         (df["RSI"] > 50) &
