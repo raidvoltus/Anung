@@ -1,17 +1,23 @@
 import requests
 
-TOKEN = "7627594999:AAE-6GMStrcSgfBylJoE1PoKStOgLDDlcxc"  # Ganti dengan token bot kamu
+TOKEN = "PASTE_TOKEN_BOT_KAMU_DI_SINI"
 URL = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
 
-response = requests.get(URL)
-data = response.json()
+try:
+    response = requests.get(URL)
+    response.raise_for_status()
+    data = response.json()
 
-# Menampilkan data update
-print(data)
-
-# Mencari chat ID grup
-if "result" in data:
-    for update in data["result"]:
-        if "message" in update:
-            chat_id = update["message"]["chat"]["id"]
-            print(f"Chat ID grup: {chat_id}")
+    if data.get("ok"):
+        results = data.get("result", [])
+        for update in results:
+            message = update.get("message")
+            if message:
+                chat = message.get("chat", {})
+                chat_id = chat.get("id")
+                chat_title = chat.get("title", "Personal Chat")
+                print(f"Chat ID: {chat_id} | Nama Chat: {chat_title}")
+    else:
+        print("Gagal mengambil data. Periksa token atau status bot.")
+except requests.exceptions.RequestException as e:
+    print(f"Terjadi kesalahan: {e}")
