@@ -132,6 +132,9 @@ def train_classifier(X, y_binary):
     return model
 
 def train_lstm(X, y):
+    # Normalisasi
+    scaler = MinMaxScaler()
+    X_scaled = scaler.fit_transform(X
     X = np.reshape(X.values, (X.shape[0], X.shape[1], 1))
     model = Sequential([
         LSTM(64, return_sequences=True, input_shape=(X.shape[1], 1)),
