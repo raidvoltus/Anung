@@ -133,6 +133,17 @@ def calculate_indicators(df):
     df["BTST_Return_High"] = (df["Target_High_Next"] / df["Close"]) - 1
 
     return df.dropna()
+    
+    def generate_btst_signal(df):
+    signal = (
+        (df["MACD_Hist"] > 0) &
+        (df["RSI"] > 50) &
+        (df["Close"] > df["EMA_5"]) &
+        (df["Close_to_High_Pct"] > 0.8) &
+        (df["Volume_Ratio"] > 1.5) &
+        (df["ADX"] > 20)
+    )
+    return df[signal]
 
 # --- [MODEL TRAINING] ---
 def train_lightgbm(X, y):
