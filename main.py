@@ -318,30 +318,25 @@ def analyze_stock(ticker):
         joblib.dump(scaler_y_low, 'scaler_y_low.pkl')
 
         # Validasi probabilitas
-        if prob_up < 0.75:
-            return None
+        if prob_up > 0.6:
+            prediksi = prediksi_sinyal(ticker, X.iloc[-1:].values, current_price)
+            if prediksi:
+                pesan = (f"<b>Sinyal Deteksi: {ticker}</b>\n"
+                         f"Harga Saat Ini: {current_price:.2f}\n"
+                         f"Target Profit (TP): {prediksi['TP']:.2f}\n"
+                         f"Stop Loss (SL): {prediksi['SL']:.2f}\n"
+                         f"Probabilitas Naik: {prob_up:.2%}")
+                send_telegram_message(pesan)
+                return prediksi
+            else:
+                logging.info(f"Tidak ada sinyal valid untuk {ticker}")
+        else:
+            logging.info(f"Probabilitas naik terlalu rendah untuk {ticker} ({prob_up:.2%})")
 
-        # Validasi prediksi yang tidak logis
-        if pred_high <= current_price or pred_low >= current_price:
-            logging.warning(f"Sinyal tidak valid untuk {ticker} - TP: {pred_high}, SL: {pred_low}, Harga: {current_price}")
-            return None
-
-        take_profit = pred_high
-        stop_loss = pred_low
-        profit_pct = round((take_profit - current_price) / current_price * 100, 2)
-
-        return {
-            "ticker": ticker,
-            "harga": current_price,
-            "take_profit": take_profit,
-            "stop_loss": stop_loss,
-            "aksi": "buy",
-            "profit_pct": profit_pct,
-            "probability": prob_up
-        }
     except Exception as e:
-        logging.error(f"Error menganalisis saham {ticker}: {e}")
-        return None
+        logging.error(f"Error saat analisis {ticker}: {e}")
+
+    return None
 
 def plot_probability_distribution(all_results):
     probs = [r["probability"] for r in all_results if r]
