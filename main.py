@@ -87,8 +87,8 @@ def send_telegram_message(message):
 def get_stock_data(ticker):
     try:
         stock = yf.Ticker(ticker)
-        data = stock.history(period="1y", interval="1d")
-        if data is not None and not data.empty and len(data) >= 200:
+        data = stock.history(period="90d", interval="1d")
+        if data is not None and not data.empty and len(data) >= 30:
             data["ticker"] = ticker
             return data
         else:
@@ -98,26 +98,40 @@ def get_stock_data(ticker):
     return None
 
 def calculate_indicators(df):
-    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=10).average_true_range()
+    # --- Indikator dasar ---
+    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=14).average_true_range()
+
     macd = trend.MACD(df["Close"])
     df["MACD"] = macd.macd()
     df["Signal_Line"] = macd.macd_signal()
     df["MACD_Hist"] = macd.macd_diff()
-    bb = volatility.BollingerBands(df["Close"], window=12)
+
+    df["RSI"] = momentum.RSIIndicator(df["Close"], window=14).rsi()
+    df["EMA_5"] = trend.EMAIndicator(df["Close"], window=5).ema_indicator()
+    df["EMA_13"] = trend.EMAIndicator(df["Close"], window=13).ema_indicator()
+
+    bb = volatility.BollingerBands(df["Close"], window=20)
     df["BB_Upper"] = bb.bollinger_hband()
     df["BB_Lower"] = bb.bollinger_lband()
-    df["Support"] = df["Low"].rolling(window=24).min()
-    df["Resistance"] = df["High"].rolling(window=24).max()
-    stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=10)
-    df["%K"] = stoch.stoch()
-    df["%D"] = stoch.stoch_signal()
-    df["RSI"] = momentum.RSIIndicator(df["Close"], window=10).rsi()
-    df["SMA_50"] = trend.SMAIndicator(df["Close"], window=24).sma_indicator()
-    df["SMA_200"] = trend.SMAIndicator(df["Close"], window=48).sma_indicator()
-    df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
-    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=10).adx()
-    df["future_high"] = df["High"].shift(-1)
-    df["future_low"] = df["Low"].shift(-1)
+
+    df["Volume_SMA_5"] = df["Volume"].rolling(window=5).mean()
+    df["Volume_Ratio"] = df["Volume"] / df["Volume_SMA_5"]
+
+    # --- Tambahan: Kekuatan closing ---
+    df["Close_to_High_Pct"] = (df["Close"] - df["Low"]) / (df["High"] - df["Low"])
+
+    # --- Tambahan: Rate of Change ---
+    df["ROC_3"] = momentum.ROCIndicator(df["Close"], window=3).roc()
+
+    # --- Tambahan: ADX untuk validasi tren ---
+    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=14).adx()
+
+    # --- Target BTST ---
+    df["Target_Open_Next"] = df["Open"].shift(-1)
+    df["Target_High_Next"] = df["High"].shift(-1)
+    df["BTST_Return_Open"] = (df["Target_Open_Next"] / df["Close"]) - 1
+    df["BTST_Return_High"] = (df["Target_High_Next"] / df["Close"]) - 1
+
     return df.dropna()
 
 # --- [MODEL TRAINING] ---
