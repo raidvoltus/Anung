@@ -212,7 +212,7 @@ def analyze_stock(ticker):
         current_price = df["Close"].iloc[-1]
 
         # Validasi probabilitas
-        if prob_up < 0.5:
+        if prob_up < 0.8:
             logging.warning(f"Probabilitas naik terlalu rendah untuk {ticker} (prob_up: {prob_up})")
             return None
 
