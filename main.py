@@ -165,6 +165,10 @@ def generate_signal(df):
     tp = min(tp, tp_price)
     sl = max(sl, sl_price)
 
+    # Contoh logika validasi
+    if abs(tp - price) / price > 0.5 or abs(sl - price) / price > 0.5:
+        logger.warning(f"Sinyal tidak valid untuk {ticker} - TP: {tp}, SL: {sl}, Harga: {price}")
+    else:
     # Tentukan kondisi untuk sinyal
     if df["RSI"].iloc[-1] > 70:  # Overbought (sinyal sell)
         signal.append({
