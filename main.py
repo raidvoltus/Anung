@@ -99,7 +99,7 @@ def get_stock_data(ticker):
 
 def calculate_indicators(df):
     df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=10).average_true_range()
-    macd = trend.MACD(df["Close"])
+    macd = trend.MACD(df["Close"], window_slow=21, window_fast=9, window_sign=5)
     df["MACD"] = macd.macd()
     df["Signal_Line"] = macd.macd_signal()
     df["MACD_Hist"] = macd.macd_diff()
