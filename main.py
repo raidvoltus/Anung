@@ -10,6 +10,7 @@ from datetime import datetime
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from concurrent.futures import ThreadPoolExecutor
 from logging.handlers import RotatingFileHandler
 
@@ -120,6 +121,40 @@ def calculate_indicators(df):
     df["future_low"] = df["Low"].shift(-1)
     return df.dropna()
 
+# Load model dan scaler
+model_high = joblib.load('model_high.pkl')
+model_low = joblib.load('model_low.pkl')
+scaler_X = joblib.load('scaler_X.pkl')
+scaler_y_high = joblib.load('scaler_y_high.pkl')
+scaler_y_low = joblib.load('scaler_y_low.pkl')
+
+def prediksi_sinyal(ticker, X_latest, harga):
+    try:
+        # Scaling input
+        X_scaled = scaler_X.transform(X_latest)
+
+        # Prediksi dan inverse scaling
+        tp_scaled = model_high.predict(X_scaled)[0]
+        sl_scaled = model_low.predict(X_scaled)[0]
+        tp = scaler_y_high.inverse_transform([[tp_scaled]])[0][0]
+        sl = scaler_y_low.inverse_transform([[sl_scaled]])[0][0]
+
+        # Validasi sinyal
+        max_tp = harga * 1.15
+        min_tp = harga * 1.05
+        max_sl = harga * 0.95
+        min_sl = harga * 0.85
+
+        if not (min_tp <= tp <= max_tp and min_sl <= sl <= max_sl):
+            logging.warning(f"Sinyal tidak valid untuk {ticker} - TP: {tp:.2f}, SL: {sl:.2f}, Harga: {harga}")
+            return None
+
+        return {'ticker': ticker, 'TP': tp, 'SL': sl, 'harga': harga}
+    
+    except Exception as e:
+        logging.error(f"Gagal prediksi untuk {ticker}: {e}")
+        return None
+        
 def generate_signal(df):
     signals = []
     
