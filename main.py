@@ -262,27 +262,10 @@ def analyze_stock(ticker):
         pred_low = model_low.predict(X.iloc[-1:])[0]
         prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]
         current_price = df["Close"].iloc[-1]
-        # Scaling X
-        scaler_X = StandardScaler()
-        X_scaled = scaler_X.fit_transform(X)
-
-        # Scaling y
-        scaler_y_high = StandardScaler()
-        y_high_scaled = scaler_y_high.fit_transform(y_high.values.reshape(-1, 1)).ravel()
-
-        scaler_y_low = StandardScaler()
-        y_low_scaled = scaler_y_low.fit_transform(y_low.values.reshape(-1, 1)).ravel()
-
-        # Train model
-        model_high.fit(X_scaled, y_high_scaled)
-        model_low.fit(X_scaled, y_low_scaled)
 
         # Simpan model dan scaler
         joblib.dump(model_high, 'model_high.pkl')
         joblib.dump(model_low, 'model_low.pkl')
-        joblib.dump(scaler_X, 'scaler_X.pkl')
-        joblib.dump(scaler_y_high, 'scaler_y_high.pkl')
-        joblib.dump(scaler_y_low, 'scaler_y_low.pkl')
 
         # Validasi probabilitas
         if prob_up > 0.6:
