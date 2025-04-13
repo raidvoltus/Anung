@@ -216,6 +216,10 @@ def analyze_stock(ticker):
         features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_50", "SMA_200", "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
         df = df.dropna(subset=features + ["future_high", "future_low"])
         X = df[features]
+        if X.empty or X.iloc[-1:].empty:
+            logging.warning(f"Data fitur kosong atau tidak cukup untuk {ticker}")
+            return None
+            
         y_high = df["future_high"]
         y_low = df["future_low"]
         y_binary = (df["future_high"] > df["Close"]).astype(int)
