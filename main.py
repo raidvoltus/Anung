@@ -97,6 +97,9 @@ def get_stock_data(ticker):
         if data is not None and not data.empty and len(data) >= 33:
             data["ticker"] = ticker
             return data
+        if "Close" not in data.columns or data["Close"].dropna().empty:
+            logging.warning(f"Tidak ada data penutupan untuk {ticker}")
+            return None
         else:
             logging.warning(f"Data kosong atau kurang: {ticker}")
     except Exception as e:
