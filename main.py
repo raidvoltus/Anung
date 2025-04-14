@@ -31,6 +31,8 @@ model_high_path = "model_high.txt"
 model_low_path = "model_low.txt"
 model_lstm_path = "model_lstm.h5"
 BACKUP_CSV_PATH = "stock_data_backup.csv"
+PREDICTION_LOG_PATH = "weekly_predictions.csv"
+EVALUATION_LOG_PATH = "weekly_evaluation.txt"
 ATR_MULTIPLIER = 2.5
 RETRAIN_INTERVAL = 7
 
