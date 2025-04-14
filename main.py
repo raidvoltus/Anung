@@ -33,7 +33,6 @@ model_cls_path = "model_cls.txt"
 model_high_path = "model_high.txt"
 model_low_path = "model_low.txt"
 model_lstm_path = "model_lstm.h5"
-scaler_path = "scaler_lstm.save"
 BACKUP_CSV_PATH = "stock_data_backup.csv"
 ATR_MULTIPLIER = 2.5
 RETRAIN_INTERVAL = 7
@@ -148,6 +147,11 @@ def train_lstm(X, y):
     model.compile(optimizer="adam", loss="mean_squared_error")
     early_stop = EarlyStopping(monitor="val_loss", patience=5, restore_best_weights=True)
     model.fit(X_lstm, y, epochs=50, batch_size=32, validation_split=0.2, callbacks=[early_stop], verbose=0)
+    # Simpan scaler
+    scaler_path = "scaler_lstm.pkl"
+    joblib.dump(scaler, scaler_path)
+
+    return model
     return model
 
 # === ANALISIS SAHAM ===
