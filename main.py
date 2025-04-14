@@ -170,10 +170,10 @@ def analyze_stock(ticker):
             eval_file.write(str(evaluation) + "\n")
 
         msg = f"<b>Prediksi {ticker}</b>
-High: {pred_high[-1]:.2f}
-Low: {pred_low[-1]:.2f}
-Class: {'Naik' if pred_cls[-1] == 1 else 'Turun'}
-LSTM: {pred_lstm[-1][0]:.2f}"
+        High: {pred_high[-1]:.2f}
+        Low: {pred_low[-1]:.2f}
+        Class: {'Naik' if pred_cls[-1] == 1 else 'Turun'}
+        LSTM: {pred_lstm[-1][0]:.2f}"
         send_telegram_message(msg)
 
         df.to_csv(log_paths["predictions_csv"], mode='a', header=not os.path.exists(log_paths["predictions_csv"]))
