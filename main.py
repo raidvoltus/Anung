@@ -114,7 +114,7 @@ def calculate_indicators(df):
     df["%K"] = stoch.stoch()
     df["%D"] = stoch.stoch_signal()
     df["RSI"] = momentum.RSIIndicator(df["Close"], window=10).rsi()
-    df["SMA_9"] = trend.SMAIndicator(df["Close"], window=8).sma_indicator()
+    df["SMA_9"] = trend.SMAIndicator(df["Close"], window=9).sma_indicator()
     df["SMA_20"] = trend.SMAIndicator(df["Close"], window=20).sma_indicator()
     df["SMA_50"] = df["Close"].rolling(window=50).mean()
     df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
