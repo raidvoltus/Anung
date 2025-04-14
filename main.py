@@ -213,7 +213,10 @@ def analyze_stock(ticker):
         if df is None or len(df) < 33:
             logging.warning(f"Data tidak cukup untuk {ticker}")
             return None
-
+            
+    except Exception as e:
+        logging.error(f"Terjadi kesalahan: {e}")
+        
         df = add_technical_indicators(df)
         X_input = preprocess_for_model(df)
 
