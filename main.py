@@ -303,9 +303,13 @@ def evaluate_model_performance():
     for ticker in eval_df["ticker"].unique():
         try:
             history = yf.Ticker(ticker).history(period="7d", interval="1h")
-            if history.empty:
+            if history.empty or "Close" not in history.columns:
+                logging.warning(f"Data tidak valid untuk evaluasi ticker {ticker}")
                 continue
-            last_close = history["Close"].iloc[-1]
+            actual_close = history["Close"].dropna().iloc[-1] if not history["Close"].dropna().empty else None
+            if actual_close is None:
+                logging.warning(f"Harga penutupan tidak ditemukan untuk {ticker}")
+                continue
             actuals.append((ticker, last_close))
         except Exception as e:
             logging.error(f"Gagal mengambil harga aktual untuk {ticker}: {e}")
