@@ -78,7 +78,7 @@ def send_telegram_message(message):
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         data = {"chat_id": CHAT_ID, "text": message, "parse_mode": "HTML"}
         response = requests.post(url, data=data)
-        if response.status_code == 33:
+        if response.status_code == 50:
             logging.info("✅ Pesan berhasil dikirim ke Telegram.")
         else:
             logging.error(f"❌ Gagal mengirim pesan ke Telegram. Status code: {response.status_code}")
@@ -90,7 +90,7 @@ def get_stock_data(ticker):
     try:
         stock = yf.Ticker(ticker)
         data = stock.history(period="90d", interval="1h")
-        if data is not None and not data.empty and len(data) >= 33:
+        if data is not None and not data.empty and len(data) >= 50:
             data["ticker"] = ticker
             return data
         else:
@@ -182,75 +182,75 @@ def train_lstm(X, y):
     return model
 
 # --- [MAIN ANALYSIS FUNCTION] ---
-def analyze_stock(ticker):
+def analyze_stock(stock_code):
     try:
-        df = get_stock_data(ticker)
-        if df is None or df.empty:
-            logging.warning(f"Data kosong untuk {ticker}, lewati analisis.")
-            return None
+        df = yf.download(stock_code, interval='1h', period='5d')
+        if df.empty or len(df) < 50:
+            print(f"Tidak cukup data untuk {stock_code}")
+            return
 
-        df = calculate_indicators(df)
-        features = [
-            "Close", "ATR", "RSI", "MACD", "MACD_Hist", "%K", "%D", "CCI", "MOM",
-            "SMA_50", "SMA_200", "BB_Upper", "BB_Lower", "Support", "Resistance",
-            "VWAP", "ADX", "hour", "day_of_week"
-        ]
-        df = df.dropna(subset=features + ["future_high", "future_low"])
-        X = df[features]
-        y_high = df["future_high"]
-        y_low = df["future_low"]
-        y_binary = (df["future_high"] > df["Close"]).astype(int)
+        df['RSI'] = ta.momentum.RSIIndicator(df['Close'], window=14).rsi()
+        df['MACD'] = ta.trend.MACD(df['Close']).macd_diff()
+        bollinger = ta.volatility.BollingerBands(df['Close'])
+        df['bollinger_h'] = bollinger.bollinger_hband()
+        df['bollinger_l'] = bollinger.bollinger_lband()
+        df.dropna(inplace=True)
 
-        X_train, _, y_train_high, _ = train_test_split(X, y_high, test_size=0.2)
-        _, _, y_train_low, _ = train_test_split(X, y_low, test_size=0.2)
-        X_train_cls, _, y_train_cls, _ = train_test_split(X, y_binary, test_size=0.2)
+        X = df[['RSI', 'MACD', 'bollinger_h', 'bollinger_l']]
+        y_high = df['High'].shift(-1).dropna()
+        y_low = df['Low'].shift(-1).dropna()
 
-        retrain = True
-        if os.path.exists(model_high_path) and os.path.exists(model_low_path) and \
-           os.path.exists(model_cls_path) and os.path.exists(model_lstm_path):
-            last_modified = datetime.fromtimestamp(os.path.getmtime(model_high_path))
-            if (datetime.now() - last_modified).days < RETRAIN_INTERVAL:
-                retrain = False
+        # Drop the last row of X to match y length
+        X = X.iloc[:-1]
 
-        if retrain:
-            model_high = train_lightgbm(X_train, y_train_high)
-            model_low = train_lightgbm(X_train, y_train_low)
-            model_cls = train_classifier(X_train_cls, y_train_cls)
-            model_lstm = train_lstm(X_train, y_train_high)
-            joblib.dump(model_high, model_high_path)
-            joblib.dump(model_low, model_low_path)
-            joblib.dump(model_cls, model_cls_path)
-            model_lstm.save(model_lstm_path)
-        else:
-            model_high = joblib.load(model_high_path)
-            model_low = joblib.load(model_low_path)
-            model_cls = joblib.load(model_cls_path)
-            model_lstm = tf.keras.models.load_model(model_lstm_path)
-            model_lstm.compile(optimizer="adam", loss="mean_squared_error")
+        # Split for training
+        X_train, X_test, y_high_train, y_high_test = train_test_split(X, y_high, test_size=0.2, random_state=42)
+        _, _, y_low_train, y_low_test = train_test_split(X, y_low, test_size=0.2, random_state=42)
 
+        # LightGBM models
+        model_high = LGBMRegressor()
+        model_high.fit(X_train, y_high_train)
+
+        model_low = LGBMRegressor()
+        model_low.fit(X_train, y_low_train)
+
+        # LSTM setup
+        scaler = MinMaxScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        X_lstm = np.reshape(X_scaled, (X_scaled.shape[0], 1, X_scaled.shape[1]))
+        y_mid = (y_high.values + y_low.values) / 2
+
+        model_lstm = Sequential()
+        model_lstm.add(LSTM(64, return_sequences=False, input_shape=(X_lstm.shape[1], X_lstm.shape[2])))
+        model_lstm.add(Dense(1))
+        model_lstm.compile(optimizer='adam', loss='mse')
+        model_lstm.fit(X_lstm, y_mid, epochs=10, batch_size=8, verbose=0)
+
+        # Latest input for prediction
+        X_latest = X.iloc[-1:].values
+        X_latest_scaled = scaler.transform(X_latest)
+        X_latest_lstm = np.reshape(X_latest_scaled, (1, 1, X_latest_scaled.shape[1]))
+
+        # Predictions
         pred_high = model_high.predict(X.iloc[-1:])[0]
         pred_low = model_low.predict(X.iloc[-1:])[0]
-        prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]
-        current_price = df["Close"].iloc[-1]
+        pred_lstm = model_lstm.predict(X_latest_lstm)[0][0]
 
-        # Validasi probabilitas
-        if prob_up < 0.8:
-            logging.warning(f"Probabilitas naik terlalu rendah untuk {ticker} (prob_up: {prob_up})")
-            return None
+        # Alert logic
+        current_price = df['Close'].iloc[-1]
+        upper_threshold = pred_high * 0.98
+        lower_threshold = pred_low * 1.02
 
-        # Menambahkan margin minimal (misal 1%) agar perbandingan TP/SL lebih realistis
-        margin = 0.01  # 1% margin
+        if current_price > upper_threshold:
+            send_telegram_alert(stock_code, current_price, pred_high, 'Sell Signal')
+        elif current_price < lower_threshold:
+            send_telegram_alert(stock_code, current_price, pred_low, 'Buy Signal')
+        else:
+            print(f"{stock_code}: No clear signal. Current: {current_price}, PredHigh: {pred_high}, PredLow: {pred_low}")
 
-        # Validasi kondisi market: hindari sideways
-        boll_width = (df["BB_Upper"].iloc[-1] - df["BB_Lower"].iloc[-1]) / df["Close"].iloc[-1]
-        if df["ADX"].iloc[-1] < 15 or boll_width < 0.01:
-            logging.warning(f"Market sideways atau volatilitas rendah untuk {ticker}")
-            return None
-        if pred_high <= current_price * (1 + margin) or pred_low >= current_price * (1 - margin):
-            logging.warning(
-                f"Sinyal tidak valid untuk {ticker} - TP: {pred_high}, SL: {pred_low}, Harga: {current_price}"
-            )
-            return None
+    except Exception as e:
+        print(f"Error analyzing {stock_code}: {e}")
 
         take_profit = pred_high
         stop_loss = pred_low
