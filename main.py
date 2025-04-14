@@ -343,4 +343,15 @@ except Exception as e:
         logging.info("⚠️ Tidak ada sinyal yang memenuhi syarat hari ini.")
 
     pd.DataFrame(results).to_csv(BACKUP_CSV_PATH, index=False)
+    today_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    for r in results:
+        r["timestamp"] = today_str
+
+    if os.path.exists(PREDICTION_LOG_PATH):
+        old_df = pd.read_csv(PREDICTION_LOG_PATH)
+        combined_df = pd.concat([old_df, pd.DataFrame(results)], ignore_index=True)
+    else:
+        combined_df = pd.DataFrame(results)
+
+    combined_df.to_csv(PREDICTION_LOG_PATH, index=False)
     logging.info(f"✅ Data disimpan ke {BACKUP_CSV_PATH}")
