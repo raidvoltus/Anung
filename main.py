@@ -174,6 +174,18 @@ def analyze_stock(ticker):
             "probability": prob_up
         }
 
+        # Logging prediksi vs realita untuk evaluasi nanti
+        prediction_log = {
+            "ticker": ticker,
+            "datetime": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "harga_now": current_price,
+            "take_profit": take_profit,
+            "stop_loss": stop_loss,
+            "probability": prob_up
+        }
+        pd.DataFrame([prediction_log]).to_csv("prediksi_log.csv", mode="a", header=not os.path.exists("prediksi_log.csv"), index=False)
+
+        return prediction_log  # return dictionary for result usage
     except Exception as e:
         logging.error(f"Error analisis {ticker}: {e}")
         return None
