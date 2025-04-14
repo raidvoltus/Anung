@@ -263,6 +263,51 @@ def plot_probability_distribution(all_results):
     plt.savefig("probability_distribution distribution.png")
     plt.close()
 
+def evaluate_model_performance():
+    if not os.path.exists(PREDICTION_LOG_PATH):
+        logging.warning("Belum ada data prediksi untuk dievaluasi.")
+        return
+
+    df = pd.read_csv(PREDICTION_LOG_PATH)
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+
+    # Filter hanya prediksi yang lebih dari 7 hari yang lalu
+    cutoff = datetime.now() - pd.Timedelta(days=7)
+    eval_df = df[df['timestamp'] < cutoff]
+
+    if eval_df.empty:
+        logging.info("Belum ada cukup data untuk evaluasi mingguan.")
+        return
+
+    # Ambil harga aktual dari Yahoo Finance untuk validasi
+    actuals = []
+    for ticker in eval_df["ticker"].unique():
+        try:
+            history = yf.Ticker(ticker).history(period="7d", interval="1h")
+            if history.empty:
+                continue
+            last_close = history["Close"].iloc[-1]
+            actuals.append((ticker, last_close))
+        except Exception as e:
+            logging.error(f"Gagal mengambil harga aktual untuk {ticker}: {e}")
+
+    actual_price_dict = dict(actuals)
+    eval_df["actual_price"] = eval_df["ticker"].map(actual_price_dict)
+
+    # Hapus yang tidak punya data aktual
+    eval_df.dropna(subset=["actual_price"], inplace=True)
+
+    # Hitung MAE dan MAPE dari prediksi high terhadap harga aktual
+    mae = mean_absolute_error(eval_df["take_profit"], eval_df["actual_price"])
+    mape = mean_absolute_percentage_error(eval_df["take_profit"], eval_df["actual_price"]) * 100
+
+    with open(EVALUATION_LOG_PATH, "a") as f:
+        f.write(f"\n=== Evaluasi Model: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===\n")
+        f.write(f"Jumlah prediksi: {len(eval_df)}\n")
+        f.write(f"MAE: {mae:.2f}\n")
+        f.write(f"MAPE: {mape:.2f}%\n")
+
+    logging.info(f"Evaluasi mingguan selesai - MAE: {mae:.2f}, MAPE: {mape:.2f}%")
 # --- [MAIN EXECUTION] ---
 if __name__ == "__main__":
     try:
