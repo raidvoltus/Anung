@@ -98,27 +98,47 @@ def get_stock_data(ticker):
     return None
 
 def calculate_indicators(df):
+    # ATR
     df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=10).average_true_range()
+    
+    # MACD
     macd = trend.MACD(df["Close"], window_slow=21, window_fast=9, window_sign=5)
     df["MACD"] = macd.macd()
     df["Signal_Line"] = macd.macd_signal()
     df["MACD_Hist"] = macd.macd_diff()
+    
+    # Bollinger Bands
     bb = volatility.BollingerBands(df["Close"], window=12)
     df["BB_Upper"] = bb.bollinger_hband()
     df["BB_Lower"] = bb.bollinger_lband()
+    
+    # Support & Resistance
     df["Support"] = df["Low"].rolling(window=24).min()
     df["Resistance"] = df["High"].rolling(window=24).max()
+    
+    # Stochastic Oscillator
     stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=10)
     df["%K"] = stoch.stoch()
     df["%D"] = stoch.stoch_signal()
+    
+    # RSI
     df["RSI"] = momentum.RSIIndicator(df["Close"], window=10).rsi()
-    df["SMA_9"] = trend.SMAIndicator(df["Close"], window=8).sma_indicator()
+    
+    # SMA
+    df["SMA_9"] = trend.SMAIndicator(df["Close"], window=9).sma_indicator()
     df["SMA_20"] = trend.SMAIndicator(df["Close"], window=20).sma_indicator()
     df["SMA_50"] = df["Close"].rolling(window=50).mean()
+    
+    # VWAP
     df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
+    
+    # ADX
     df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=10).adx()
+    
+    # Future High/Low
     df["future_high"] = df["High"].shift(-1)
     df["future_low"] = df["Low"].shift(-1)
+
     return df.dropna()
 
 # === MODEL TRAINING ===
