@@ -170,21 +170,17 @@ def train_lstm(X, y):
     scaler = MinMaxScaler()
     X_scaled = scaler.fit_transform(X)
     
-    # Reshape ke format (samples, timesteps, features)
     X_lstm = np.reshape(X_scaled, (X_scaled.shape[0], 1, X_scaled.shape[1]))
 
-    # Build model
     model = Sequential()
     model.add(LSTM(units=64, return_sequences=False, input_shape=(X_lstm.shape[1], X_lstm.shape[2])))
     model.add(Dropout(0.2))
-    model.add(Dense(1))  # Output: prediksi future_high atau future_low
+    model.add(Dense(1))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
 
-    # Early stopping
     early_stop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
 
-    # Train
     model.fit(X_lstm, y, 
               epochs=50, 
               batch_size=32, 
@@ -192,11 +188,10 @@ def train_lstm(X, y):
               callbacks=[early_stop],
               verbose=1)
 
-with open('scaler_target.pkl', 'wb') as f:
-    pickle.dump(scaler_target, f)
-    
-with open('scaler_target.pkl', 'rb') as f:
-    scaler_target = pickle.load(f)
+    # Simpan scaler
+    with open('scaler_target.pkl', 'wb') as f:
+        pickle.dump(scaler, f)
+
     return model
 
 # --- [MAIN ANALYSIS FUNCTION] ---
