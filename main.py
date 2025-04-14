@@ -162,7 +162,7 @@ def analyze_stock(ticker):
         y_binary = (df["future_high"] > df["Close"]).astype(int)
 
         X_train, _, y_train_high, _ = train_test_split(X, y_high, test_size=0.2)
-        _, _, y_train_low, _ = train_test_split(X, y_low, test_size=0.2)
+        X_train_low, _, y_train_low, _ = train_test_split(X, y_low, test_size=0.2)
         X_train_cls, _, y_train_cls, _ = train_test_split(X, y_binary, test_size=0.2)
 
         retrain = True
