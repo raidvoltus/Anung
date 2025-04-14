@@ -56,7 +56,7 @@ def send_telegram_message(message):
 
 def get_stock_data(ticker):
     try:
-        df = yf.Ticker(ticker).history(period="60d", interval="1h")
+        df = yf.download(ticker, period="60d", interval="1h", threads=False)
         if df is not None and not df.empty and len(df) >= 33:
             df["ticker"] = ticker
             return df
