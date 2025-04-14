@@ -202,6 +202,34 @@ def analyze_stock(ticker):
         if df is None or df.empty:
             logging.warning(f"Data kosong untuk {ticker}, lewati analisis.")
             return None
+            
+    try:
+        df = fetch_hourly_data(ticker)
+        if df is None or len(df) < 33:
+            logging.warning(f"Data tidak cukup untuk {ticker}")
+            return None
+
+        df = add_technical_indicators(df)
+        X_input = preprocess_for_model(df)
+
+        harga_now = df['Close'].iloc[-1]
+
+        result = predict_with_model(model, X_input, scaler_target, harga_now, ticker)
+        if result is None:
+            return None
+
+        tp, sl = result
+        logging.info(f"Sinyal valid: {ticker} | Harga: {harga_now} | TP: {tp} | SL: {sl}")
+        return {
+            'ticker': ticker,
+            'harga': harga_now,
+            'take_profit': tp,
+            'stop_loss': sl
+        }
+
+    except Exception as e:
+        logging.error(f"Kesalahan saat analisis saham: {e}")
+        return None
 
         df = calculate_indicators(df)
 
