@@ -191,6 +191,9 @@ def train_lstm(X, y):
     # Simpan scaler
     with open('scaler_target.pkl', 'wb') as f:
         pickle.dump(scaler, f)
+    
+    with open('scaler_target.pkl', 'rb') as f:
+    scaler_target = pickle.load(f)
 
     return model
 
