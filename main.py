@@ -135,33 +135,23 @@ def train_classifier(X, y_binary):
     return model
 
 def train_lstm(X, y):
-    # Normalisasi
-    scaler = MinMaxScaler()
-    X_scaled = scaler.fit_transform(X)
-    
-    # Reshape ke format (samples, timesteps, features)
+    scaler_X = MinMaxScaler()
+    X_scaled = scaler_X.fit_transform(X)
     X_lstm = np.reshape(X_scaled, (X_scaled.shape[0], 1, X_scaled.shape[1]))
 
-    # Build model
+    scaler_y = MinMaxScaler()
+    y_scaled = scaler_y.fit_transform(y.values.reshape(-1, 1))
+
     model = Sequential()
     model.add(LSTM(units=64, return_sequences=False, input_shape=(X_lstm.shape[1], X_lstm.shape[2])))
     model.add(Dropout(0.2))
-    model.add(Dense(1))  # Output: prediksi future_high atau future_low
+    model.add(Dense(1))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
-
-    # Early stopping
     early_stop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+    model.fit(X_lstm, y_scaled, epochs=50, batch_size=32, validation_split=0.2, callbacks=[early_stop], verbose=1)
 
-    # Train
-    model.fit(X_lstm, y, 
-              epochs=50, 
-              batch_size=32, 
-              validation_split=0.2, 
-              callbacks=[early_stop],
-              verbose=1)
-
-    return modelk
+    return model, scaler_X, scaler_y
 
 # --- [MAIN ANALYSIS FUNCTION] ---
 def analyze_stock(ticker):
