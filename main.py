@@ -166,9 +166,8 @@ def analyze_stock(ticker):
             "mape_high": mean_absolute_percentage_error(y_high, pred_high),
             "mape_low": mean_absolute_percentage_error(y_low, pred_low)
         }
-        with open(log_paths["evaluation_txt"], "a") as f:
-            f.write(str(evaluation) + "
-")
+        with open(EVALUATION_LOG_PATH, "a") as eval_file:
+            eval_file.write(str(evaluation) + "\n")
 
         msg = f"<b>Prediksi {ticker}</b>
 High: {pred_high[-1]:.2f}
