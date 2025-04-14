@@ -160,7 +160,8 @@ def train_lstm(X, y):
               validation_split=0.2, 
               callbacks=[early_stop],
               verbose=1)
-
+            
+    retrain = not all(os.path.exists(path) for path in [model_high_path, model_low_path, model_cls_path, model_lstm_path, "scaler_target.pkl"])
     # Simpan scaler
     with open('scaler_target.pkl', 'wb') as f:
         pickle.dump(scaler, f)
