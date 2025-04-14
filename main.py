@@ -137,7 +137,7 @@ def train_classifier(X, y_binary):
 def train_lstm(X, y):
     scaler_X = MinMaxScaler()
     X_scaled = scaler_X.fit_transform(X)
-    joblib.dump(scaler, "scaler_lstm.save")
+    joblib.dump(scaler_X, "scaler_lstm.save")
     X_lstm = np.reshape(X_scaled, (X_scaled.shape[0], 1, X_scaled.shape[1]))
 
     scaler_y = MinMaxScaler()
