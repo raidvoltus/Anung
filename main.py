@@ -88,11 +88,13 @@ def send_telegram_message(message):
 
 def get_stock_data(ticker):
     try:
-        stock = yf.Ticker(ticker)
-        data = stock.history(period="90d", interval="1h")
-        if data is not None and not data.empty and len(data) >= 50:
-            data["ticker"] = ticker
-            return data
+    df = yf.download(stock_code, interval='1h', period='30d')
+    if df is None or df.empty:
+        print(f"Tidak cukup data untuk {stock_code}")
+        return
+except ValueError as ve:
+    print(f"ValueError saat download {stock_code}: {ve}")
+        return data
         else:
             logging.warning(f"Data kosong atau kurang: {ticker}")
     except Exception as e:
@@ -236,8 +238,8 @@ def analyze_stock(stock_code):
         pred_high = model_high.predict(X.iloc[-1:])[0]
         pred_low = model_low.predict(X.iloc[-1:])[0]
         pred_lstm = model_lstm.predict(X_latest_lstm)[0][0]
-
-        # Alert logic
+    
+        # alert logic
         current_price = df['Close'].iloc[-1]
         upper_threshold = pred_high * 0.98
         lower_threshold = pred_low * 1.02
@@ -250,7 +252,8 @@ def analyze_stock(stock_code):
             print(f"{stock_code}: No clear signal. Current: {current_price}, PredHigh: {pred_high}, PredLow: {pred_low}")
 
     except Exception as e:
-        print(f"Error analyzing {stock_code}: {e}")
+            print(f"Error analyzing {stock_code}: {e}")
+        return
 
         take_profit = pred_high
         stop_loss = pred_low
