@@ -106,7 +106,7 @@ def get_stock_data(ticker):
 def calculate_indicators(df):
     df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=14).average_true_range()
 
-    macd = trend.MACD(df["Close"], window_slow=26, window_fast=12, window_sign=9)
+    macd = trend.MACD(df["Close"], window_slow=13, window_fast=5, window_sign=5)
     df["MACD"] = macd.macd()
     df["Signal_Line"] = macd.macd_signal()
     df["MACD_Hist"] = macd.macd_diff()
@@ -130,7 +130,7 @@ def calculate_indicators(df):
 
     df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
 
-    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=14).adx()
+    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=10).adx()
 
     # Label prediksi harga besok (misalnya 6 jam dari sekarang)
     df["future_high"] = df["High"].shift(-6)
@@ -188,7 +188,7 @@ def train_lstm(X, y):
               callbacks=[early_stop],
               verbose=1)
 
-    return modelk
+    return model
 
 # --- [MAIN ANALYSIS FUNCTION] ---
 def analyze_stock(ticker):
