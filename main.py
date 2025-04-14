@@ -100,26 +100,45 @@ def get_stock_data(ticker):
     return None
 
 def calculate_indicators(df):
-    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=10).average_true_range()
-    macd = trend.MACD(df["Close"], window_slow=21, window_fast=9, window_sign=5)
+    # --- Volatilitas dan Trend ---
+    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=5).average_true_range()
+    macd = trend.MACD(df["Close"], window_slow=12, window_fast=6, window_sign=3)
     df["MACD"] = macd.macd()
     df["Signal_Line"] = macd.macd_signal()
     df["MACD_Hist"] = macd.macd_diff()
-    bb = volatility.BollingerBands(df["Close"], window=12)
+    bb = volatility.BollingerBands(df["Close"], window=10)
     df["BB_Upper"] = bb.bollinger_hband()
     df["BB_Lower"] = bb.bollinger_lband()
-    df["Support"] = df["Low"].rolling(window=12).min()
-    df["Resistance"] = df["High"].rolling(window=12).max()
-    stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=10)
+
+    # --- Support & Resistance ---
+    df["Support"] = df["Low"].rolling(window=10).min()
+    df["Resistance"] = df["High"].rolling(window=10).max()
+
+    # --- Momentum ---
+    stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=7)
     df["%K"] = stoch.stoch()
     df["%D"] = stoch.stoch_signal()
-    df["RSI"] = momentum.RSIIndicator(df["Close"], window=14).rsi()
-    df["SMA_50"] = trend.SMAIndicator(df["Close"], window=8).sma_indicator()
-    df["SMA_200"] = trend.SMAIndicator(df["Close"], window=24).sma_indicator()
+    df["RSI"] = momentum.RSIIndicator(df["Close"], window=7).rsi()
+    df["CCI"] = momentum.CCIIndicator(df["High"], df["Low"], df["Close"], window=10).cci()
+    df["MOM"] = momentum.MomentumIndicator(df["Close"], window=5).momentum()
+
+    # --- Moving Average & VWAP ---
+    df["SMA_50"] = trend.SMAIndicator(df["Close"], window=5).sma_indicator()
+    df["SMA_200"] = trend.SMAIndicator(df["Close"], window=10).sma_indicator()
     df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
-    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=10).adx()
+
+    # --- ADX ---
+    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=5).adx()
+
+    # --- Waktu ---
+    df["hour"] = df.index.hour
+    df["day_of_week"] = df.index.dayofweek
+
+    # --- Target Prediction ---
     df["future_high"] = df["High"].shift(-1)
     df["future_low"] = df["Low"].shift(-1)
+    df["target_up"] = ((df["future_high"] - df["Close"]) / df["Close"] > 0.005).astype(int)
+
     return df.dropna()
 
 # --- [MODEL TRAINING] ---
