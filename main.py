@@ -185,7 +185,7 @@ def analyze_stock(ticker):
 
         df = calculate_indicators(df)
 
-        features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_9", "SMA_20", "SMA_50", "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
+        features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_20", "SMA_50", "SMA_100", "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
         df = df.dropna(subset=features + ["future_high", "future_low"])
         X = df[features]
         y_high = df["future_high"]
