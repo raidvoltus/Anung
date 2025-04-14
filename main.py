@@ -192,7 +192,7 @@ def analyze_stock(ticker):
         pred_low = model_low.predict(X.iloc[-1:])[0]
         prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]
 
-        if prob_up < 0.075 or pred_high <= current_price or pred_low >= current_price:
+        if prob_up < 0.75 or pred_high <= current_price or pred_low >= current_price:
             return None
 
         return {
