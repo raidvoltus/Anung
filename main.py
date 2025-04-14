@@ -151,6 +151,7 @@ def tune_lightgbm_regressor(X, y):
     grid_search.fit(X, y)
     logging.info(f"Best params (regressor): {grid_search.best_params_}")
     return grid_search.best_estimator_
+    
 def train_lightgbm(X, y):
     model = lgb.LGBMRegressor(n_estimators=500, learning_rate=0.05)
     model.fit(X, y)
