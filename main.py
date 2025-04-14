@@ -100,46 +100,37 @@ def get_stock_data(ticker):
     return None
 
 def calculate_indicators(df):
-    # ATR lebih sensitif untuk volatilitas jangka pendek
-    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=5).average_true_range()
+    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=14).average_true_range()
 
-    # MACD disesuaikan untuk sinyal yang lebih cepat
-    macd = trend.MACD(df["Close"], window_slow=19, window_fast=8, window_sign=4)
+    macd = trend.MACD(df["Close"], window_slow=26, window_fast=12, window_sign=9)
     df["MACD"] = macd.macd()
     df["Signal_Line"] = macd.macd_signal()
     df["MACD_Hist"] = macd.macd_diff()
 
-    # Bollinger Bands dengan window lebih pendek agar lebih sensitif
-    bb = volatility.BollingerBands(df["Close"], window=10, window_dev=2)
+    bb = volatility.BollingerBands(df["Close"], window=20)
     df["BB_Upper"] = bb.bollinger_hband()
     df["BB_Lower"] = bb.bollinger_lband()
 
-    # Support dan resistance 24 jam terakhir (1 hari kerja)
-    df["Support"] = df["Low"].rolling(window=12).min()
-    df["Resistance"] = df["High"].rolling(window=12).max()
+    df["Support"] = df["Low"].rolling(window=48).min()
+    df["Resistance"] = df["High"].rolling(window=48).max()
 
-    # Stochastic oscillator untuk jangka pendek
-    stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=7, smooth_window=3)
+    stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=14)
     df["%K"] = stoch.stoch()
     df["%D"] = stoch.stoch_signal()
 
-    # RSI periode lebih pendek untuk lebih responsif
-    df["RSI"] = momentum.RSIIndicator(df["Close"], window=7).rsi()
+    df["RSI"] = momentum.RSIIndicator(df["Close"], window=14).rsi()
 
-    # SMA untuk konfirmasi trend jangka pendek
-    df["SMA_5"] = trend.SMAIndicator(df["Close"], window=5).sma_indicator()
-    df["SMA_12"] = trend.SMAIndicator(df["Close"], window=12).sma_indicator()
-    df["SMA_26"] = trend.SMAIndicator(df["Close"], window=26).sma_indicator()
+    df["SMA_20"] = trend.SMAIndicator(df["Close"], window=20).sma_indicator()
+    df["SMA_50"] = trend.SMAIndicator(df["Close"], window=50).sma_indicator()
+    df["SMA_100"] = trend.SMAIndicator(df["Close"], window=100).sma_indicator()
 
-    # VWAP tetap karena relevan secara intraday
     df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
 
-    # ADX untuk mengukur kekuatan tren jangka pendek
-    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=7).adx()
+    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=14).adx()
 
-    # Target harga 1 jam ke depan (untuk label supervised learning)
-    df["future_high"] = df["High"].shift(-1)
-    df["future_low"] = df["Low"].shift(-1)
+    # Label prediksi harga besok (misalnya 6 jam dari sekarang)
+    df["future_high"] = df["High"].shift(-6)
+    df["future_low"] = df["Low"].shift(-6)
 
     return df.dropna()
 
