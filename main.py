@@ -78,7 +78,7 @@ def send_telegram_message(message):
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         data = {"chat_id": CHAT_ID, "text": message, "parse_mode": "HTML"}
         r = requests.post(url, data=data)
-        if r.status_code == 33:
+        if r.status_code == 200:
             logging.info("✅ Pesan dikirim ke Telegram.")
         else:
             logging.error(f"❌ Gagal kirim pesan: {r.status_code} {r.text}")
