@@ -265,6 +265,16 @@ def plot_probability_distribution(all_results):
 
 # --- [MAIN EXECUTION] ---
 if __name__ == "__main__":
+    try:
+        if not os.path.exists(EVALUATION_LOG_PATH):
+            evaluate_model_performance()
+        else:
+            last_eval = os.path.getmtime(EVALUATION_LOG_PATH)
+            last_eval_date = datetime.fromtimestamp(last_eval)
+            if (datetime.now() - last_eval_date).days >= 7:
+                evaluate_model_performance()
+except Exception as e:
+    logging.error(f"Evaluasi mingguan gagal: {e}")
     logging.info("🚀 Memulai analisis saham...")
     with ThreadPoolExecutor(max_workers=7) as executor:
         results = list(executor.map(analyze_stock, STOCK_LIST))
