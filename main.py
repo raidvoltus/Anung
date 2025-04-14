@@ -238,6 +238,11 @@ def analyze_stock(ticker):
         # Menambahkan margin minimal (misal 1%) agar perbandingan TP/SL lebih realistis
         margin = 0.01  # 1% margin
 
+        # Validasi kondisi market: hindari sideways
+        boll_width = (df["BB_Upper"].iloc[-1] - df["BB_Lower"].iloc[-1]) / df["Close"].iloc[-1]
+        if df["ADX"].iloc[-1] < 15 or boll_width < 0.01:
+            logging.warning(f"Market sideways atau volatilitas rendah untuk {ticker}")
+            return None
         if pred_high <= current_price * (1 + margin) or pred_low >= current_price * (1 - margin):
             logging.warning(
                 f"Sinyal tidak valid untuk {ticker} - TP: {pred_high}, SL: {pred_low}, Harga: {current_price}"
