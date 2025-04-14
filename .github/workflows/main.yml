@@ -2,7 +2,8 @@ name: Anung bot
 
 on:
   schedule:
-    - cron: '0 8 * * 1-5'  # 08:00 UTC = 15:00 WIB, hanya Senin sampai Jumat
+    - cron: '0 3 * * 1-5'   # 10:00 WIB
+    - cron: '0 8 * * 1-5'   # 15:00 WIB
   workflow_dispatch:
 
 jobs:
