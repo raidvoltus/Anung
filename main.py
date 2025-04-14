@@ -5,6 +5,7 @@ import yfinance as yf
 import lightgbm as lgb
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import warnings
 from ta import momentum, trend, volatility, volume
 from datetime import datetime
 from tensorflow.keras.models import Sequential, load_model
@@ -14,6 +15,8 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from concurrent.futures import ThreadPoolExecutor
 
+warnings.filterwarnings("ignore")
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 # === LOGGING ===
 logging.basicConfig(
     level=logging.INFO,
