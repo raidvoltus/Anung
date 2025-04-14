@@ -192,6 +192,11 @@ def train_lstm(X, y):
               callbacks=[early_stop],
               verbose=1)
 
+with open('scaler_target.pkl', 'wb') as f:
+    pickle.dump(scaler_target, f)
+    
+with open('scaler_target.pkl', 'rb') as f:
+    scaler_target = pickle.load(f)
     return model
 
 # --- [MAIN ANALYSIS FUNCTION] ---
