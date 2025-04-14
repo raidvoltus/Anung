@@ -313,6 +313,32 @@ def plot_probability_distribution(all_results):
     plt.savefig("probability_distribution distribution.png")
     plt.close()
 
+def predict_with_model(model, X_input, scaler_target, harga_now, ticker):
+    try:
+        # Prediksi skala normalisasi
+        y_pred_scaled = model.predict(X_input)
+
+        # Inverse transform ke harga asli
+        y_pred = scaler_target.inverse_transform(y_pred_scaled)
+
+        tp = float(y_pred[0][0])  # future_high
+        sl = float(y_pred[0][1])  # future_low
+
+        # Validasi logis sinyal
+        if tp < harga_now or sl > harga_now:
+            logging.warning(f"Sinyal tidak valid untuk {ticker} - TP lebih rendah atau SL lebih tinggi dari harga sekarang")
+            return None
+
+        if abs(tp - harga_now) / harga_now > 0.5 or abs(harga_now - sl) / harga_now > 0.5:
+            logging.warning(f"Sinyal tidak valid untuk {ticker} - TP/SL terlalu jauh dari harga: {harga_now}, TP: {tp}, SL: {sl}")
+            return None
+
+        return tp, sl
+
+    except Exception as e:
+        logging.error(f"Kesalahan prediksi untuk {ticker}: {e}")
+        return None
+        
 def evaluate_model_performance():
     if not os.path.exists(PREDICTION_LOG_PATH):
         logging.warning("Belum ada data prediksi untuk dievaluasi.")
