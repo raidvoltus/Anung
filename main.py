@@ -138,6 +138,18 @@ def calculate_indicators(df):
     return df.dropna()
 
 # --- [MODEL TRAINING] ---
+def tune_lightgbm_regressor(X, y):
+    param_grid = {
+        'n_estimators': [200, 500],
+        'learning_rate': [0.01, 0.05, 0.1],
+        'max_depth': [3, 5, 7],
+        'num_leaves': [15, 31, 50]
+    }
+    model = lgb.LGBMRegressor()
+    grid_search = GridSearchCV(model, param_grid, cv=3, scoring='neg_mean_absolute_error', verbose=0, n_jobs=-1)
+    grid_search.fit(X, y)
+    logging.info(f"Best params (regressor): {grid_search.best_params_}")
+    return grid_search.best_estimator_
 def train_lightgbm(X, y):
     model = lgb.LGBMRegressor(n_estimators=500, learning_rate=0.05)
     model.fit(X, y)
