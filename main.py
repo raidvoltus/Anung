@@ -219,8 +219,8 @@ def analyze_stock(ticker):
                 retrain = False
 
         if retrain:
-            model_high = train_lightgbm(X_train, y_train_high)
-            model_low = train_lightgbm(X_train, y_train_low)
+            model_high = tune_lightgbm_regressor(X_train, y_train_high)
+            model_low = tune_lightgbm_regressor(X_train, y_train_low)
             model_cls = train_classifier(X_train_cls, y_train_cls)
             model_lstm = train_lstm(X_train, y_train_high)
             joblib.dump(model_high, model_high_path)
