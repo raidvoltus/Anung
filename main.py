@@ -195,10 +195,22 @@ def analyze_stock(ticker):
             model_lstm = tf.keras.models.load_model(model_lstm_path)
             model_lstm.compile(optimizer="adam", loss="mean_squared_error")
 
-        current_price = df["Close"].iloc[-1]
-        pred_high = model_high.predict(X.iloc[-1:])[0]
+                current_price = df["Close"].iloc[-1]
+
+        # Prediksi dari model LightGBM
+        pred_high_lgbm = model_high.predict(X.iloc[-1:])[0]
         pred_low = model_low.predict(X.iloc[-1:])[0]
         prob_up = model_cls.predict_proba(X.iloc[-1:])[0][1]
+
+        # Prediksi dari model LSTM
+        scaler = MinMaxScaler()
+        X_scaled = scaler.fit_transform(X)
+        last_scaled = X_scaled[-1:]
+        last_scaled = np.reshape(last_scaled, (1, 1, X.shape[1]))
+        pred_high_lstm = model_lstm.predict(last_scaled, verbose=0)[0][0]
+
+        # Hybrid take_profit: rata-rata LGBM dan LSTM
+        take_profit = (pred_high_lgbm + pred_high_lstm) / 2
 
         if prob_up < 0.75 or pred_high <= current_price or pred_low >= current_price:
             return None
@@ -206,11 +218,13 @@ def analyze_stock(ticker):
         return {
             "ticker": ticker,
             "harga": current_price,
-            "take_profit": pred_high,
+            "take_profit": take_profit,
             "stop_loss": pred_low,
             "aksi": "buy",
-            "profit_pct": round((pred_high - current_price) / current_price * 100, 2),
-            "probability": prob_up
+            "profit_pct": round((take_profit - current_price) / current_price * 100, 2),
+            "probability": prob_up,
+            "lgbm_pred_high": pred_high_lgbm,
+            "lstm_pred_high": pred_high_lstm
         }
 
     except Exception as e:
