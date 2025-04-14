@@ -357,7 +357,7 @@ try:
         plot_probability_distribution(results)
         top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
 
-        message = "<b>🍆Kontil news: Dukun pasar saham kita kesurupan lagi! Berikut bisikan gaib buat kamu yang masih percaya hidup itu keras, tapi market bisa lebih keras 📊 :</b>\n"
+        message = "<b>🍆Kontil News: Dukun pasar saham kita kesurupan lagi! Berikut bisikan gaib buat para Kontil yang masih percaya hidup itu keras, tapi kita yakin kita bisa lebih keras 💩:</b>\n"
         for r in top_5:
             message += (
                 f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
