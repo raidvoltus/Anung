@@ -88,7 +88,7 @@ def send_telegram_message(message):
 
 def get_stock_data(ticker):
     try:
-    df = yf.download(stock_code, interval='1h', period='30d')
+    df = yf.download(stock_code, interval='1h', period='5d')
     if df is None or df.empty:
         print(f"Tidak cukup data untuk {stock_code}")
         return
