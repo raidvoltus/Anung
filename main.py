@@ -321,8 +321,8 @@ if __name__ == "__main__":
             last_eval_date = datetime.fromtimestamp(last_eval)
             if (datetime.now() - last_eval_date).days >= 7:
                 evaluate_model_performance()
-except Exception as e:
-    logging.error(f"Evaluasi mingguan gagal: {e}")
+    except Exception as e:
+    logging.error(f"Gagal karena: {e}")
     logging.info("🚀 Memulai analisis saham...")
     with ThreadPoolExecutor(max_workers=7) as executor:
         results = list(executor.map(analyze_stock, STOCK_LIST))
