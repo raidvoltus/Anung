@@ -92,13 +92,13 @@ def get_stock_data(ticker):
     if df is None or df.empty:
         print(f"Tidak cukup data untuk {stock_code}")
         return
-except ValueError as ve:
+    except ValueError as ve:
     print(f"ValueError saat download {stock_code}: {ve}")
         return data
         else:
             logging.warning(f"Data kosong atau kurang: {ticker}")
     except Exception as e:
-        logging.error(f"Error mengambil data {ticker}: {e}")
+            logging.error(f"Error mengambil data {ticker}: {e}")
     return None
 
 def calculate_indicators(df):
