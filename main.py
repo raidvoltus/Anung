@@ -194,7 +194,7 @@ def analyze_stock(ticker):
             model_cls = joblib.load(model_cls_path)
             model_lstm = tf.keras.models.load_model(model_lstm_path)
             model_lstm.compile(optimizer="adam", loss="mean_squared_error")
-            current_price = df["Close"].iloc[-1]
+        current_price = df["Close"].iloc[-1]
 
         # Prediksi dari model LightGBM
         pred_high_lgbm = model_high.predict(X.iloc[-1:])[0]
