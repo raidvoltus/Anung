@@ -30,6 +30,7 @@ model_cls_path = "model_cls.txt"
 model_high_path = "model_high.txt"
 model_low_path = "model_low.txt"
 model_lstm_path = "model_lstm.h5"
+scaler_path = "scaler_lstm.save"
 BACKUP_CSV_PATH = "stock_data_backup.csv"
 ATR_MULTIPLIER = 2.5
 RETRAIN_INTERVAL = 7
