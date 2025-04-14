@@ -314,23 +314,26 @@ def evaluate_model_performance():
 # --- [MAIN EXECUTION] ---
 if __name__ == "__main__":
     try:
-        if not os.path.exists(EVALUATION_LOG_PATH):
-            evaluate_model_performance()
-        else:
-            last_eval = os.path.getmtime(EVALUATION_LOG_PATH)
-            last_eval_date = datetime.fromtimestamp(last_eval)
-            if (datetime.now() - last_eval_date).days >= 7:
-                evaluate_model_performance()
+        if os.path.exists(EVALUATION_LOG_PATH):
+           last_eval = os.path.getmtime(EVALUATION_LOG_PATH)
+           last_eval_date = datetime.fromtimestamp(last_eval)
+           if (datetime.now() - last_eval_date).days >= 7:
+               evaluate_model_performance()
     except Exception as e:
-        logging.error(f"Gagal karena: {e}")
-        logging.info("🚀 Memulai analisis saham...")
+        logging.error(f"Gagal evaluasi model: {e}")
+    
+    # Lanjut ke analisis saham
+logging.info("🚀 Memulai analisis saham...")
+try:
     with ThreadPoolExecutor(max_workers=7) as executor:
         results = list(executor.map(analyze_stock, STOCK_LIST))
+
     results = [r for r in results if r]
 
     if results:
         plot_probability_distribution(results)
         top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
+
         message = "<b>🍆Kontil news: Dukun pasar saham kita kesurupan lagi! Berikut bisikan gaib buat kamu yang masih percaya hidup itu keras, tapi market bisa lebih keras 📊 :</b>\n"
         for r in top_5:
             message += (
@@ -344,6 +347,7 @@ if __name__ == "__main__":
     else:
         logging.info("⚠️ Tidak ada sinyal yang memenuhi syarat hari ini.")
 
+    # Backup dan simpan prediksi
     pd.DataFrame(results).to_csv(BACKUP_CSV_PATH, index=False)
     today_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     for r in results:
@@ -357,3 +361,6 @@ if __name__ == "__main__":
 
     combined_df.to_csv(PREDICTION_LOG_PATH, index=False)
     logging.info(f"✅ Data disimpan ke {BACKUP_CSV_PATH}")
+
+except Exception as e:
+    logging.error(f"Kesalahan saat analisis saham: {e}")
