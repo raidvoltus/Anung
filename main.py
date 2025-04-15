@@ -268,9 +268,10 @@ def analyze_stock(ticker):
             "probability": prob,
             "profit_pct": potensi
         }
-
         return signal
-
+        else:
+            return None
+            
     except Exception as e:
         logging.error(f"Error menganalisis {ticker}: {e}")
         return None
