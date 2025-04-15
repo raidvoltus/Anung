@@ -98,23 +98,60 @@ def get_stock_data(ticker, retries=5, delay=2):
 
 # Indikator
 def calculate_indicators(df):
-    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"]).average_true_range()
-    macd = trend.MACD(df["Close"], window_slow=13, window_fast=5, window_sign=5)
-    df["MACD"] = macd.macd()
-    df["MACD_Hist"] = macd.macd_diff()
-    bb = volatility.BollingerBands(df["Close"])
-    df["BB_Upper"] = bb.bollinger_hband()
-    df["BB_Lower"] = bb.bollinger_lband()
-    df["Support"] = df["Low"].rolling(24).min()
-    df["Resistance"] = df["High"].rolling(24).max()
-    df["RSI"] = momentum.RSIIndicator(df["Close"]).rsi()
-    df["SMA_20"] = trend.SMAIndicator(df["Close"], 20).sma_indicator()
-    df["SMA_50"] = trend.SMAIndicator(df["Close"], 50).sma_indicator()
-    df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
-    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"]).adx()
-    df["future_high"] = df["High"].shift(-6)
-    df["future_low"] = df["Low"].shift(-6)
-    return df.dropna()
+    if df is None or df.empty:
+        return None
+
+    try:
+        # ATR (Average True Range)
+        df["ATR"] = volatility.AverageTrueRange(
+            df["High"], df["Low"], df["Close"]).average_true_range()
+
+        # MACD
+        macd = trend.MACD(df["Close"], window_slow=13, window_fast=5, window_sign=5)
+        df["MACD"] = macd.macd()
+        df["MACD_Hist"] = macd.macd_diff()
+
+        # Bollinger Bands
+        bb = volatility.BollingerBands(df["Close"])
+        df["BB_Upper"] = bb.bollinger_hband()
+        df["BB_Lower"] = bb.bollinger_lband()
+
+        # Support & Resistance
+        df["Support"] = df["Low"].rolling(window=24).min()
+        df["Resistance"] = df["High"].rolling(window=24).max()
+
+        # RSI
+        df["RSI"] = momentum.RSIIndicator(df["Close"]).rsi()
+
+        # SMA
+        df["SMA_20"] = trend.SMAIndicator(df["Close"], window=20).sma_indicator()
+        df["SMA_50"] = trend.SMAIndicator(df["Close"], window=50).sma_indicator()
+
+        # VWAP (gunakan try karena kadang error jika volume 0)
+        try:
+            vwap = volume.VolumeWeightedAveragePrice(
+                high=df["High"], low=df["Low"], close=df["Close"], volume=df["Volume"]
+            )
+            df["VWAP"] = vwap.volume_weighted_average_price()
+        except Exception as ve:
+            logging.warning(f"VWAP gagal dihitung: {ve}")
+            df["VWAP"] = df["Close"]
+
+        # ADX
+        df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"]).adx()
+
+        # Future prediction (6 bar ke depan)
+        df["future_high"] = df["High"].shift(-6)
+        df["future_low"] = df["Low"].shift(-6)
+
+        # Bersihkan NaN awal (disebabkan oleh indikator dengan window panjang)
+        df.dropna(inplace=True)
+
+        return df
+
+    except Exception as e:
+        logging.error(f"Gagal menghitung indikator: {e}")
+        return None
 
 # Training model
 def train_lightgbm(X, y):
