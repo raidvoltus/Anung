@@ -59,7 +59,7 @@ def send_telegram_message(message):
 def get_stock_data(ticker):
     try:
         stock = yf.Ticker(ticker)
-        data = stock.history(period="60d", interval="30m")
+        data = stock.history(period="5y", interval="1d")
         if data is not None and not data.empty and len(data) >= 200:
             data["ticker"] = ticker
             return data
@@ -71,24 +71,24 @@ def get_stock_data(ticker):
 
 # === Hitung Indikator Teknikal ===
 def calculate_indicators(df):
-    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=10).average_true_range()
-    macd = trend.MACD(df["Close"], window_slow=13, window_fast=5, window_sign=5)
+    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=14).average_true_range()
+    macd = trend.MACD(df["Close"], window_slow=26, window_fast=12, window_sign=9)
     df["MACD"] = macd.macd()
     df["Signal_Line"] = macd.macd_signal()
     df["MACD_Hist"] = macd.macd_diff()
-    bb = volatility.BollingerBands(df["Close"], window=12)
+    bb = volatility.BollingerBands(df["Close"], window=20)
     df["BB_Upper"] = bb.bollinger_hband()
     df["BB_Lower"] = bb.bollinger_lband()
     df["Support"] = df["Low"].rolling(window=24).min()
     df["Resistance"] = df["High"].rolling(window=24).max()
-    stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=10)
+    stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=14)
     df["%K"] = stoch.stoch()
     df["%D"] = stoch.stoch_signal()
     df["RSI"] = momentum.RSIIndicator(df["Close"], window=10).rsi()
     df["SMA_50"] = trend.SMAIndicator(df["Close"], window=24).sma_indicator()
     df["SMA_200"] = trend.SMAIndicator(df["Close"], window=48).sma_indicator()
     df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
-    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=10).adx()
+    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=14).adx()
     df["future_high"] = df["High"].shift(-1)
     df["future_low"] = df["Low"].shift(-1)
     return df.dropna()
