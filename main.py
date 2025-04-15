@@ -16,7 +16,7 @@ from logging.handlers import RotatingFileHandler
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
 ATR_MULTIPLIER = 2.5
-RETRAIN_INTERVAL = 7
+RETRAIN_INTERVAL = 1
 MODEL_HIGH_PATH = "model_high.pkl"
 MODEL_LOW_PATH = "model_low.pkl"
 MODEL_LSTM_PATH = "model_lstm.h5"
