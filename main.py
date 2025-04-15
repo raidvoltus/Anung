@@ -1,5 +1,3 @@
-Belum di test
-
 import os, time, joblib, requests, logging
 import numpy as np
 import pandas as pd
