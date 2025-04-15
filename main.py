@@ -1,5 +1,3 @@
-# trading_bot.py
-
 import os
 import time
 import pickle
