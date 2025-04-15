@@ -194,7 +194,7 @@ def analyze_stock(ticker):
 # === [MAIN EKSEKUSI] ===
 if __name__ == "__main__":
     logging.info("🚀 Memulai analisis saham...")
-    with ThreadPoolExecutor(max_workers=1) as executor:
+    with ThreadPoolExecutor(max_workers=7) as executor:
         results = list(executor.map(analyze_stock, STOCK_LIST))
     results = [r for r in results if r and r["aksi"] == "beli"]
 
