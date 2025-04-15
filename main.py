@@ -42,10 +42,10 @@ model_lstm_path = "model_lstm.h5"
 BACKUP_CSV_PATH = "stock_data_backup.csv"
 PREDICTION_LOG_PATH = "weekly_predictions.csv"
 EVALUATION_LOG_PATH = "weekly_evaluation.txt"
-ATR_MULTIPLIER = 2.5
-TP_MULTIPLIER = 0.01
-SL_MULTIPLIER = 0.01
-MIN_PROBABILITY = 0.3
+ATR_MULTIPLIER = 1
+TP_MULTIPLIER = 0.008
+SL_MULTIPLIER = 0.004
+MIN_PROBABILITY = 0.01
 RETRAIN_INTERVAL = 7
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 STOCK_LIST = [
@@ -85,7 +85,7 @@ def get_stock_data(ticker, max_retries=5, delay=2):
     for attempt in range(max_retries):
         try:
             stock = yf.Ticker(ticker)
-            data = stock.history(period="90d", interval="1h")
+            data = stock.history(period="5y", interval="1h")
 
             if data is None or data.empty or len(data) < 33:
                 logging.warning(f"Data kosong atau kurang untuk {ticker}, percobaan ke-{attempt+1}")
