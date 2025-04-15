@@ -91,6 +91,31 @@ def calculate_indicators(df):
     df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=14).adx()
     df["future_high"] = df["High"].shift(-1)
     df["future_low"] = df["Low"].shift(-1)
+    def calculate_indicators(df):
+    # --- Hitung indikator teknikal ---
+    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=10).average_true_range()
+    macd = trend.MACD(df["Close"])
+    df["MACD"] = macd.macd()
+    df["Signal_Line"] = macd.macd_signal()
+    df["MACD_Hist"] = macd.macd_diff()
+    bb = volatility.BollingerBands(df["Close"], window=12)
+    df["BB_Upper"] = bb.bollinger_hband()
+    df["BB_Lower"] = bb.bollinger_lband()
+    df["Support"] = df["Low"].rolling(window=20).min()
+    df["Resistance"] = df["High"].rolling(window=20).max()
+    stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=10)
+    df["%K"] = stoch.stoch()
+    df["%D"] = stoch.stoch_signal()
+    df["RSI"] = momentum.RSIIndicator(df["Close"], window=10).rsi()
+    df["SMA_50"] = trend.SMAIndicator(df["Close"], window=24).sma_indicator()
+    df["SMA_200"] = trend.SMAIndicator(df["Close"], window=48).sma_indicator()
+    df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
+    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=10).adx()
+    # --- Tambahkan target prediksi untuk besok ---
+    df["target_high"] = df["High"].shift(-1)
+    df["target_low"] = df["Low"].shift(-1)
+    df["target_close"] = df["Close"].shift(-1)
+
     return df.dropna()
 
 # === Training Model LightGBM ===
