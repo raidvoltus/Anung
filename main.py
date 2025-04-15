@@ -188,6 +188,10 @@ def analyze_stock(ticker):
         y_low = df["future_low"]
         y_binary = (df["future_high"] > df["Close"]).astype(int)
 
+        if len(X) < 5:
+            logging.warning(f"Data untuk {ticker} terlalu sedikit untuk training.")
+            return None
+    
         X_train, _, y_train_high, _ = train_test_split(X, y_high, test_size=0.2, random_state=42)
         y_train_low = y_low[X_train.index]
         y_train_cls = y_binary[X_train.index]
