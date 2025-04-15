@@ -258,7 +258,8 @@ def analyze_stock(ticker):
         potensi = round(((tp - harga) / harga) * 100, 2)
 
         # LOGIKA YANG DILONGGARKAN UNTUK MEMPERBANYAK SINYAL
-        if aksi == "buy" and prob >= MIN_PROBABILITY:
+        if aksi == "buy":
+            
         signal = {
             "ticker": ticker,
             "harga": harga,
