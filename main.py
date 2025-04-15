@@ -1,7 +1,3 @@
-# === Instalasi Dependensi (Hanya Sekali) ===
-# !pip install yfinance lightgbm tensorflow joblib requests numpy pandas ta
-
-# === Import Library ===
 import os, time, joblib, requests, logging
 import numpy as np
 import pandas as pd
@@ -27,7 +23,21 @@ MODEL_LSTM_PATH = "model_lstm.h5"
 BACKUP_CSV_PATH = "stock_data_backup.csv"
 
 # === Daftar Saham ===
-STOCK_LIST = ["BBCA.JK", "BBRI.JK", "BMRI.JK", "TLKM.JK", "UNVR.JK", "ANTM.JK", "ADRO.JK", "MDKA.JK"]
+STOCK_LIST = [
+    "ACES.JK", "ADMR.JK", "ADRO.JK", "AKRA.JK", "AMMN.JK", "AMRT.JK", "ANTM.JK",
+    "ARTO.JK", "ASII.JK", "AUTO.JK", "AVIA.JK", "BBCA.JK", "BBNI.JK", "BBRI.JK",
+    "BBTN.JK", "BBYB.JK", "BDKR.JK", "BFIN.JK", "BMRI.JK", "BMTR.JK", "BNGA.JK",
+    "BRIS.JK", "BRMS.JK", "BRPT.JK", "BSDE.JK", "BTPS.JK", "CMRY.JK", "CPIN.JK",
+    "CTRA.JK", "DEWA.JK", "DSNG.JK", "ELSA.JK", "EMTK.JK", "ENRG.JK", "ERAA.JK",
+    "ESSA.JK", "EXCL.JK", "FILM.JK", "GGRM.JK", "GJTL.JK", "GOTO.JK", "HEAL.JK",
+    "HMSP.JK", "HRUM.JK", "ICBP.JK", "INCO.JK", "INDF.JK", "INDY.JK", "INKP.JK",
+    "INTP.JK", "ISAT.JK", "ITMG.JK", "JPFA.JK", "JSMR.JK", "KLBF.JK", "MDKA.JK",
+    "MEDC.JK", "MIKA.JK", "MNCN.JK", "MTEL.JK", "MYOR.JK", "NCKL.JK", "PGAS.JK",
+    "PNLF.JK", "PTBA.JK", "PTPP.JK", "PWON.JK", "ROTI.JK", "SAME.JK", "SCMA.JK",
+    "SIDO.JK", "SILO.JK", "SMGR.JK", "SMRA.JK", "TBIG.JK", "TINS.JK", "TKIM.JK",
+    "TLKM.JK", "TOWR.JK", "TPIA.JK", "UNTR.JK", "UNVR.JK", "WIKA.JK", "WSKT.JK",
+    "WTON.JK"
+]
 
 # === Logging ===
 log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
