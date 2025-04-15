@@ -207,7 +207,7 @@ def analyze_stock(ticker):
             predicted_class = model_cls.predict(X)
 
         if scaler_target is None:
-             return None
+              return None
 
         try:
               X_lstm_scaled = scaler_target.transform(X)
@@ -215,12 +215,12 @@ def analyze_stock(ticker):
               logging.error(f"Scaler error pada {ticker}: {e}")
               return None
 
-         if scaler_target.mean_.shape[0] != X.shape[1]:
+        if scaler_target.mean_.shape[0] != X.shape[1]:
               logging.error(f"Mismatch fitur: scaler expects {scaler_target.mean_.shape[0]}, got {X.shape[1]}")
               return None
 
-X_lstm_scaled = np.reshape(X_lstm_scaled, (X_lstm_scaled.shape[0], 1, X_lstm_scaled.shape[1]))
-predicted_lstm = model_lstm.predict(X_lstm_scaled)
+        X_lstm_scaled = np.reshape(X_lstm_scaled, (X_lstm_scaled.shape[0], 1, X_lstm_scaled.shape[1]))
+        predicted_lstm = model_lstm.predict(X_lstm_scaled)
 
         X_lstm_scaled = scaler_target.transform(X)
         X_lstm_scaled = np.reshape(X_lstm_scaled, (X_lstm_scaled.shape[0], 1, X_lstm_scaled.shape[1]))
