@@ -43,10 +43,10 @@ BACKUP_CSV_PATH = "stock_data_backup.csv"
 PREDICTION_LOG_PATH = "weekly_predictions.csv"
 EVALUATION_LOG_PATH = "weekly_evaluation.txt"
 ATR_MULTIPLIER = 2.5
-TP_MULTIPLIER = 0.008
-SL_MULTIPLIER = 0.004
-MIN_PROBABILITY = 0.001
-RETRAIN_INTERVAL = 7
+TP_MULTIPLIER = 0.01
+SL_MULTIPLIER = 0.015
+MIN_PROBABILITY = 0.045
+RETRAIN_INTERVAL = 3
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 STOCK_LIST = [
     "ACES.JK", "ADMR.JK", "ADRO.JK", "AKRA.JK", "AMMN.JK", "AMRT.JK", "ANTM.JK",
@@ -87,7 +87,7 @@ def get_stock_data(ticker, max_retries=5, delay=2):
             stock = yf.Ticker(ticker)
             data = stock.history(period="2y", interval="1h")
 
-            if data is None or data.empty or len(data) < 333:
+            if data is None or data.empty or len(data) < 200:
                 logging.warning(f"Data kosong atau kurang untuk {ticker}, percobaan ke-{attempt+1}")
                 time.sleep(delay + random.uniform(0, 2))  # Tambahkan jitter
                 continue
@@ -188,7 +188,7 @@ def analyze_stock(ticker):
         y_low = df["future_low"]
         y_binary = (df["future_high"] > df["Close"]).astype(int)
 
-        if len(X) < 50:
+        if len(X) < 10:
             logging.warning(f"Data untuk {ticker} terlalu sedikit untuk training.")
             return None
     
