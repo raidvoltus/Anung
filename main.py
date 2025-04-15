@@ -85,7 +85,7 @@ def get_stock_data(ticker, max_retries=5, delay=2):
     for attempt in range(max_retries):
         try:
             stock = yf.Ticker(ticker)
-            data = stock.history(period="2y", interval="1h")
+            data = stock.history(period="730d", interval="1h")
 
             if data is None or data.empty or len(data) < 200:
                 logging.warning(f"Data kosong atau kurang untuk {ticker}, percobaan ke-{attempt+1}")
@@ -297,7 +297,7 @@ SCALER_PATH = 'scaler_target.pkl'
 def buat_scaler_otomatis(ticker='BMRI.JK'):
     try:
         logging.info(f"Mengunduh data historis untuk {ticker}...")
-        stock_data = yf.download(ticker, period='1y', interval='1h')
+        stock_data = yf.download(ticker, period='730d', interval='1h')
         if stock_data.empty:
             logging.warning(f"Tidak ada data yang diunduh untuk {ticker}. Tidak dapat membuat scaler.")
             return
