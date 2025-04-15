@@ -268,7 +268,7 @@ def analyze_stock(ticker):
             "aksi": aksi,
             "probability": prob,
             "profit_pct": potensi
-        }
+            }
             return signal
         else:
             return None
