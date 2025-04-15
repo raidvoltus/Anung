@@ -236,41 +236,55 @@ def analyze_stock(ticker):
         if scaler_target.mean_.shape[0] != X.shape[1]:
               logging.error(f"Mismatch fitur: scaler expects {scaler_target.mean_.shape[0]}, got {X.shape[1]}")
               return None
+        try:
+            # Proses pembentukan fitur
+            features = prepare_features(df)
 
-        X_lstm_scaled = np.reshape(X_lstm_scaled, (X_lstm_scaled.shape[0], 1, X_lstm_scaled.shape[1]))
-        predicted_lstm = model_lstm.predict(X_lstm_scaled)
+            if features is None or features.empty:
+            raise ValueError("Fitur tidak tersedia")
 
-        X_lstm_scaled = scaler_target.transform(X)
-        X_lstm_scaled = np.reshape(X_lstm_scaled, (X_lstm_scaled.shape[0], 1, X_lstm_scaled.shape[1]))
-        predicted_lstm = model_lstm.predict(X_lstm_scaled)
+            X = features[-1:]  # ambil baris terakhir untuk prediksi
 
-        df["predicted_high"] = predicted_high
-        df["predicted_low"] = predicted_low
-        df["predicted_class"] = predicted_class
-        df["predicted_lstm"] = predicted_lstm
+            # Normalisasi
+            X_scaled = scaler.transform(X)
 
-        latest = df.iloc[-1]
-        harga = latest["Close"]
-        tp = float(latest["predicted_high"])
-        sl = float(latest["predicted_low"])
-        prob = float(latest["predicted_class"])
-        aksi = "buy" if prob == 1 else "sell"
-        potensi = round(((tp - harga) / harga) * 100, 2)
+            # Prediksi
+            prediction = model.predict(X_scaled)[0]
+            probability = model.predict_proba(X_scaled)[0][1]
+            
+            X_lstm_scaled = np.reshape(X_lstm_scaled, (X_lstm_scaled.shape[0], 1, X_lstm_scaled.shape[1]))
+            predicted_lstm = model_lstm.predict(X_lstm_scaled)
 
-        # LOGIKA YANG DILONGGARKAN UNTUK MEMPERBANYAK SINYAL
-        if aksi == "buy" and potensi >= 1.5 and prob >= 0.70:
-            signal = {
-                "ticker": ticker,
-                "harga": harga,
-                "take_profit": tp,
-                "stop_loss": sl,
-                "aksi": aksi,
-                "probability": prob,
-                "profit_pct": potensi
-            }
-            return signal
-        else:
-            return None
+            X_lstm_scaled = scaler_target.transform(X)
+            X_lstm_scaled = np.reshape(X_lstm_scaled, (X_lstm_scaled.shape[0], 1, X_lstm_scaled.shape[1]))
+            predicted_lstm = model_lstm.predict(X_lstm_scaled)
+
+            df["predicted_high"] = predicted_high
+            df["predicted_low"] = predicted_low
+            df["predicted_class"] = predicted_class
+            df["predicted_lstm"] = predicted_lstm
+
+            latest = df.iloc[-1]
+            harga = latest["Close"]
+            tp = float(latest["predicted_high"])
+            sl = float(latest["predicted_low"])
+            prob = float(latest["predicted_class"])
+            aksi = "buy" if prob == 1 else "sell"
+            potensi = round(((tp - harga) / harga) * 100, 2)
+
+            # LOGIKA YANG DILONGGARKAN UNTUK MEMPERBANYAK SINYAL
+            if aksi == "buy" and potensi >= 1.5 and prob >= 0.70:
+                signal = {
+                    "ticker": ticker,
+                    "harga": harga,
+                    "stop_loss": sl,
+                    "aksi": aksi,
+                    "probability": prob,
+                    "profit_pct": potensi
+                }
+                return signal
+            else:
+                return None
             
     except Exception as e:
         logging.error(f"Error menganalisis {ticker}: {e}")
