@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import random
 import yfinance as yf
-yf.set_tz_cache_location("/tmp/py-yfinance-cache")  # Cache di lokasi baru
 import lightgbm as lgb
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -23,7 +22,6 @@ from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 from sklearn.model_selection import train_test_split, GridSearchCV
 from concurrent.futures import ThreadPoolExecutor
 from logging.handlers import RotatingFileHandler
-import pickle
 
 # --- [LOGGING] ---
 logging.basicConfig(
@@ -47,7 +45,9 @@ TP_MULTIPLIER = 0.01
 SL_MULTIPLIER = 0.015
 MIN_PROBABILITY = 0.045
 RETRAIN_INTERVAL = 3
+yf.set_tz_cache_location("/tmp/py-yfinance-cache")  # Cache di lokasi baru
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 STOCK_LIST = [
     "ACES.JK", "ADMR.JK", "ADRO.JK", "AKRA.JK", "AMMN.JK", "AMRT.JK", "ANTM.JK",
     "ARTO.JK", "ASII.JK", "AUTO.JK", "AVIA.JK", "BBCA.JK", "BBNI.JK", "BBRI.JK",
@@ -176,7 +176,11 @@ def analyze_stock(ticker):
         df = get_stock_data(ticker)
         if df is None or df.empty:
             return None
-
+            
+        if df is None or df.empty or len(df) < 60:
+            logger.warning(f"Data kosong atau tidak cukup untuk {ticker}")
+            return None
+            
         df = calculate_indicators(df)
 
         features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_20", "SMA_50", "SMA_100",
