@@ -154,30 +154,56 @@ def calculate_indicators(df):
         return None
 
 # Training model
-def train_lightgbm(X, y):
-    model = lgb.LGBMRegressor()
+def train_lightgbm(X, y, model_path="models/lgbm_regressor.pkl"):
+    model = lgb.LGBMRegressor(n_estimators=100, learning_rate=0.05, random_state=42)
     model.fit(X, y)
+    joblib.dump(model, model_path)
+    logging.info(f"LightGBM Regressor saved to {model_path}")
     return model
 
-def train_classifier(X, y):
-    model = lgb.LGBMClassifier()
+def train_classifier(X, y, model_path="models/lgbm_classifier.pkl"):
+    model = lgb.LGBMClassifier(n_estimators=100, learning_rate=0.05, random_state=42)
     model.fit(X, y)
+    joblib.dump(model, model_path)
+    logging.info(f"LightGBM Classifier saved to {model_path}")
     return model
 
-def train_lstm(X, y):
+def train_lstm(X, y, model_path="models/lstm_model.h5", scaler_path=SCALER_PATH, epochs=10, batch_size=32):
+    # Scaling input
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-    joblib.dump(scaler, SCALER_PATH)
+    joblib.dump(scaler, scaler_path)
+    logging.info(f"Scaler saved to {scaler_path}")
+
+    # Reshape untuk LSTM
     X_lstm = np.reshape(X_scaled, (X_scaled.shape[0], 1, X_scaled.shape[1]))
 
+    # Arsitektur LSTM
     model = Sequential()
     model.add(LSTM(units=64, input_shape=(1, X_scaled.shape[1])))
     model.add(Dropout(0.2))
-    model.add(Dense(1))
+    model.add(Dense(1))  # Output: regresi
     model.compile(optimizer='adam', loss='mean_squared_error')
-    model.fit(X_lstm, y, epochs=10, batch_size=32, verbose=0)
-    return model
 
+    # Training
+    model.fit(X_lstm, y, epochs=epochs, batch_size=batch_size, verbose=0)
+
+    # Simpan model
+    model.save(model_path)
+    logging.info(f"LSTM model saved to {model_path}")
+    return model
+    
+os.makedirs("models", exist_ok=True)
+
+def evaluate_model(model, X, y, task="regression"):
+    y_pred = model.predict(X)
+    if task == "regression":
+        mse = mean_squared_error(y, y_pred)
+        logging.info(f"Evaluation (MSE): {mse:.4f}")
+    elif task == "classification":
+        acc = accuracy_score(y, (y_pred > 0.5).astype(int))
+        logging.info(f"Evaluation (Accuracy): {acc:.4f}")
+        
 # Analisis per saham
 def analyze_stock(ticker):
     df = get_stock_data(ticker)
