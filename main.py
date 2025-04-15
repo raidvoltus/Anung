@@ -180,7 +180,7 @@ def analyze_stock(ticker):
 
         retrain = False
         if not all([os.path.exists(p) for p in [model_high_path, model_low_path, model_cls_path, model_lstm_path]]):
-        retrain = True
+            retrain = True
         else:
             last_modified = datetime.fromtimestamp(os.path.getmtime(model_high_path))
             retrain = (datetime.now() - last_modified).days >= RETRAIN_INTERVAL
