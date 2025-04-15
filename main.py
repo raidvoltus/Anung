@@ -217,7 +217,7 @@ def analyze_stock(ticker):
 
          if scaler_target.mean_.shape[0] != X.shape[1]:
               logging.error(f"Mismatch fitur: scaler expects {scaler_target.mean_.shape[0]}, got {X.shape[1]}")
-               return None
+              return None
 
 X_lstm_scaled = np.reshape(X_lstm_scaled, (X_lstm_scaled.shape[0], 1, X_lstm_scaled.shape[1]))
 predicted_lstm = model_lstm.predict(X_lstm_scaled)
