@@ -68,22 +68,31 @@ def send_telegram_message(message):
     except Exception as e:
         logging.error(f"Telegram error: {e}")
 
-# Ambil data
+# Cache untuk menghindari tekanan pada yfinance dan meningkatkan kecepatan
+session = requests_cache.CachedSession('yfinance_cache', expire_after=300)
+
 def get_stock_data(ticker, retries=5, delay=2):
-    for attempt in range(retries):
+    for attempt in range(1, retries + 1):
         try:
-            stock = yf.Ticker(ticker)
-            data = stock.history(period="730d", interval="1h")
+            stock = yf.Ticker(ticker, session=session)
+            data = stock.history(period="730d", interval="1h", timeout=10)
+            
             if data.empty or len(data) < 200:
+                logging.warning(f"{ticker} - Data kosong atau terlalu sedikit (len={len(data)}), attempt {attempt}")
                 time.sleep(delay + random.uniform(0, 2))
                 continue
+
             if "Volume" not in data.columns:
                 data["Volume"] = 0
+
             data["ticker"] = ticker
             return data
+
         except Exception as e:
-            logging.error(f"{ticker} error: {e}")
-            time.sleep(delay)
+            logging.error(f"{ticker} - Attempt {attempt}/{retries} gagal: {e}")
+            time.sleep(delay + random.uniform(0, 2))
+
+    logging.error(f"{ticker} - Gagal mengambil data setelah {retries} attempt.")
     return None
 
 # Indikator
