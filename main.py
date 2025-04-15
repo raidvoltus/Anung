@@ -126,33 +126,44 @@ def analyze_stock(ticker):
     X = df[features]
     y_high, y_low = df["future_high"], df["future_low"]
 
-    X_train, _, y_train_high, _ = train_test_split(X, y_high, test_size=0.2)
-    _, _, y_train_low, _ = train_test_split(X, y_low, test_size=0.2)
+    if should_retrain():
+        X_train, _, y_train_high, _ = train_test_split(X, y_high, test_size=0.2)
+        _, _, y_train_low, _ = train_test_split(X, y_low, test_size=0.2)
 
-    model_high = train_lightgbm(X_train, y_train_high)
-    model_low = train_lightgbm(X_train, y_train_low)
-    model_lstm = train_lstm(X_train, y_train_high)
+        model_high = train_lightgbm(X_train, y_train_high)
+        model_low = train_lightgbm(X_train, y_train_low)
+        model_lstm = train_lstm(X_train, y_train_high)
 
-    joblib.dump(model_high, MODEL_HIGH_PATH)
-    joblib.dump(model_low, MODEL_LOW_PATH)
-    model_lstm.save(MODEL_LSTM_PATH)
+        joblib.dump(model_high, MODEL_HIGH_PATH)
+        joblib.dump(model_low, MODEL_LOW_PATH)
+        model_lstm.save(MODEL_LSTM_PATH)
+        update_last_train_time()
+    else:
+        model_high = joblib.load(MODEL_HIGH_PATH)
+        model_low = joblib.load(MODEL_LOW_PATH)
+        model_lstm = load_model(MODEL_LSTM_PATH)
 
-    pred_high = model_high.predict(X.iloc[-1:].values)[0]
-    pred_low = model_low.predict(X.iloc[-1:].values)[0]
-    current_price = df["Close"].iloc[-1]
+    X_latest = X.iloc[-1:].values
+    pred_high = model_high.predict(X_latest)[0]
+    pred_low = model_low.predict(X_latest)[0]
 
-    risk = current_price - pred_low
-    reward = pred_high - current_price
-    if risk <= 0 or reward / risk < 3:
+    # Estimasi probabilitas naik
+    high_pred_class = model_high.predict_proba(X_latest)[0] if hasattr(model_high, "predict_proba") else None
+    probability = high_pred_class[1] if high_pred_class is not None and len(high_pred_class) > 1 else 0.5
+
+    if probability < MIN_PROBABILITY:
         return None
 
+    current_price = df["Close"].iloc[-1]
     action = "beli" if pred_high > current_price else "jual"
+
     return {
         "ticker": ticker,
         "harga": round(current_price, 2),
         "take_profit": round(pred_high, 2),
         "stop_loss": round(pred_low, 2),
-        "aksi": action
+        "aksi": action,
+        "probabilitas": round(probability, 2)
     }
 
 # === Eksekusi & Kirim Sinyal ===
@@ -164,11 +175,11 @@ if __name__ == "__main__":
 
     top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
     if top_5:
-        message = "<b>📊 Top 5 Sinyal Trading Hari Ini:</b>\n"
+        message = "<b>📊 Top 5 Sinyal Trading Hari Ini (Prob > {:.0%}):</b>\n".format(MIN_PROBABILITY)
         for r in top_5:
             message += (f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
                         f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n   "
-                        f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n")
+                        f"📈 Prob: {r['probabilitas']:.2%}\n   📌 Aksi: <b>{r['aksi'].upper()}</b>\n")
         send_telegram_message(message)
     pd.DataFrame(results).to_csv(BACKUP_CSV_PATH, index=False)
     logging.info("✅ Selesai dan data disimpan.")
