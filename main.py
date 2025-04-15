@@ -245,7 +245,7 @@ def analyze_stock(ticker):
             features = prepare_features(df)
 
             if features is None or features.empty:
-              raise ValueError("Fitur tidak tersedia")
+                raise ValueError("Fitur tidak tersedia")
 
             X = features[-1:]  # ambil baris terakhir untuk prediksi
 
