@@ -138,9 +138,10 @@ def analyze_stock(ticker):
         return None
 
     df = calculate_indicators(df)
-    features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_20", "SMA_50", "VWAP", "ADX", "BB_Upper", "BB_Lower", "Support", "Resistance"]
-    df = df.dropna(subset=features + ["future_high", "future_low"])
 
+    features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_20", "SMA_50",
+                "VWAP", "ADX", "BB_Upper", "BB_Lower", "Support", "Resistance"]
+    df = df.dropna(subset=features + ["future_high", "future_low"])
     if df.empty:
         return None
 
@@ -153,32 +154,51 @@ def analyze_stock(ticker):
     y_train_low = y_low[X_train.index]
     y_train_cls = y_binary[X_train.index]
 
+    # Path model berdasarkan ticker
+    model_high_path = f"models/{ticker}_model_high.txt"
+    model_low_path = f"models/{ticker}_model_low.txt"
+    model_cls_path = f"models/{ticker}_model_cls.pkl"
+    model_lstm_path = f"models/{ticker}_model_lstm.h5"
+
     retrain = not all([os.path.exists(p) for p in [model_high_path, model_low_path, model_cls_path, model_lstm_path]])
 
-    if retrain:
-        model_high = train_lightgbm(X_train, y_train_high)
-        model_low = train_lightgbm(X_train, y_train_low)
-        model_cls = train_classifier(X_train, y_train_cls)
-        model_lstm = train_lstm(X_train, y_train_high)
+    try:
+        if retrain:
+            model_high = train_lightgbm(X_train, y_train_high)
+            model_low = train_lightgbm(X_train, y_train_low)
+            model_cls = train_classifier(X_train, y_train_cls)
+            model_lstm = train_lstm(X_train, y_train_high)
 
-        joblib.dump(model_high, model_high_path)
-        joblib.dump(model_low, model_low_path)
-        joblib.dump(model_cls, model_cls_path)
-        model_lstm.save(model_lstm_path)
-    else:
-        model_high = joblib.load(model_high_path)
-        model_low = joblib.load(model_low_path)
-        model_cls = joblib.load(model_cls_path)
-        model_lstm = load_model(model_lstm_path)
+            joblib.dump(model_high, model_high_path)
+            joblib.dump(model_low, model_low_path)
+            joblib.dump(model_cls, model_cls_path)
+            model_lstm.save(model_lstm_path)
+        else:
+            model_high = joblib.load(model_high_path)
+            model_low = joblib.load(model_low_path)
+            model_cls = joblib.load(model_cls_path)
+            model_lstm = load_model(model_lstm_path)
+
+            # Validasi jumlah fitur
+            if hasattr(model_high, 'n_features_in_') and model_high.n_features_in_ != len(X.columns):
+                logging.warning(f"[{ticker}] Jumlah fitur tidak cocok. Model dilatih dengan {model_high.n_features_in_}, input sekarang {len(X.columns)}. Retraining...")
+                os.remove(model_high_path)
+                os.remove(model_low_path)
+                os.remove(model_cls_path)
+                os.remove(model_lstm_path)
+                return analyze_stock(ticker)  # Retry dengan retrain
+    except Exception as e:
+        logging.error(f"Error saat memuat atau melatih model untuk {ticker}: {e}")
+        return None
 
     predicted_high = model_high.predict(X)
     predicted_low = model_low.predict(X)
     predicted_class = model_cls.predict(X)
-    
+
     scaler = joblib.load(SCALER_PATH)
     X_lstm_scaled = scaler.transform(X)
     X_lstm_scaled = np.reshape(X_lstm_scaled, (X_lstm_scaled.shape[0], 1, X_lstm_scaled.shape[1]))
-    predicted_lstm = model_lstm.predict(X_lstm_scaled)
+    predicted_lstm = model_lstm.predict(X_lstm_scaled, verbose=0)
 
     df["predicted_high"] = predicted_high
     df["predicted_low"] = predicted_low
