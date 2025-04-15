@@ -269,7 +269,7 @@ def analyze_stock(ticker):
             "probability": prob,
             "profit_pct": potensi
         }
-        return signal
+            return signal
         else:
             return None
             
