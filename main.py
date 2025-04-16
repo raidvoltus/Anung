@@ -83,7 +83,7 @@ def send_telegram_message(message, max_retries=3):
 def get_stock_data(ticker, max_retries=3):
     for _ in range(max_retries):
         try:
-            data = yf.download(ticker, period="1y", interval="1d", progress=False, auto_adjust=True)
+            data = yf.download(ticker, period="3y", interval="1d", progress=False, auto_adjust=True)
             if data is not None and not data.empty and len(data) > 100:
                 data["ticker"] = ticker
                 return data
