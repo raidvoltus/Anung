@@ -145,7 +145,6 @@ def analyze_stock(ticker):
         "take_profit": round(pred_high, 2),
         "stop_loss": round(pred_low, 2),
         "aksi": action
-        "profit_pct": profit_pct,
         "probabilitas": round(prob * 100, 2)
     }
 
