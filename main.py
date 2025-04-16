@@ -90,22 +90,23 @@ def get_stock_data(ticker):
 
 # === Hitung Indikator Teknikal ===
 def calculate_indicators(df):
-    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=10).average_true_range()
+    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=14).average_true_range()
     macd = trend.MACD(df["Close"])
     df["MACD"] = macd.macd()
     df["Signal_Line"] = macd.macd_signal()
     df["MACD_Hist"] = macd.macd_diff()
-    bb = volatility.BollingerBands(df["Close"], window=12)
+    bb = volatility.BollingerBands(df["Close"], window=20)
     df["BB_Upper"] = bb.bollinger_hband()
     df["BB_Lower"] = bb.bollinger_lband()
-    df["Support"] = df["Low"].rolling(window=24).min()
-    df["Resistance"] = df["High"].rolling(window=24).max()
+    df["Support"] = df["Low"].rolling(window=20).min()
+    df["Resistance"] = df["High"].rolling(window=20).max()
     stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=10)
     df["%K"] = stoch.stoch()
     df["%D"] = stoch.stoch_signal()
-    df["RSI"] = momentum.RSIIndicator(df["Close"], window=10).rsi()
-    df["SMA_50"] = trend.SMAIndicator(df["Close"], window=24).sma_indicator()
-    df["SMA_200"] = trend.SMAIndicator(df["Close"], window=48).sma_indicator()
+    df["RSI"] = momentum.RSIIndicator(df["Close"], window=14).rsi()
+    df["SMA_20"] = trend.SMAIndicator(df["Close"], window=20).sma_indicator()
+    df["SMA_50"] = trend.SMAIndicator(df["Close"], window=50).sma_indicator()
+    df["SMA_200"] = trend.SMAIndicator(df["Close"], window=200).sma_indicator()
     df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
     df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=10).adx()
     df["future_high"] = df["High"].shift(-1)
@@ -147,7 +148,7 @@ def analyze_stock(ticker):
         return None
     df = calculate_indicators(df)
 
-    features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_50", "SMA_200", "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
+    features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_20", "SMA_50", "SMA_200", "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
     df = df.dropna(subset=features + ["future_high", "future_low"])
     X = df[features]
     y_high, y_low = df["future_high"], df["future_low"]
