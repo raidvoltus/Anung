@@ -125,7 +125,7 @@ def analyze_stock(ticker):
 
     joblib.dump(model_high, MODEL_HIGH_PATH)
     joblib.dump(model_low, MODEL_LOW_PATH)
-    model_lstm.save("MODEL_LSTM_PATH")
+    model_lstm.save("MODEL_LSTM_PATH.keras")
 
     pred_high = model_high.predict(X.iloc[-1:].values)[0]
     pred_low = model_low.predict(X.iloc[-1:].values)[0]
