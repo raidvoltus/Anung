@@ -1,7 +1,3 @@
-# === Instalasi Dependensi (Hanya Sekali) ===
-# !pip install yfinance lightgbm tensorflow joblib requests numpy pandas ta
-
-# === Import Library ===
 import os, time, joblib, requests, logging
 import numpy as np
 import pandas as pd
@@ -93,7 +89,7 @@ def get_stock_data(ticker):
 
 # === Hitung Indikator Teknikal ===
 def calculate_indicators(df):
-    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=10).average_true_range()
+    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=14).average_true_range()
     macd = trend.MACD(df["Close"])
     df["MACD"] = macd.macd()
     df["Signal_Line"] = macd.macd_signal()
@@ -106,11 +102,11 @@ def calculate_indicators(df):
     stoch = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=10)
     df["%K"] = stoch.stoch()
     df["%D"] = stoch.stoch_signal()
-    df["RSI"] = momentum.RSIIndicator(df["Close"], window=10).rsi()
+    df["RSI"] = momentum.RSIIndicator(df["Close"], window=14).rsi()
     df["SMA_50"] = trend.SMAIndicator(df["Close"], window=24).sma_indicator()
     df["SMA_200"] = trend.SMAIndicator(df["Close"], window=48).sma_indicator()
     df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
-    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=10).adx()
+    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=14).adx()
     df["future_high"] = df["High"].shift(-1)
     df["future_low"] = df["Low"].shift(-1)
     return df.dropna()
