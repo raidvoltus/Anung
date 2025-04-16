@@ -132,4 +132,66 @@ def analyze_stock(ticker):
     _, _, y_train_low, _ = train_test_split(X, y_low, test_size=0.2)
 
     model_high = train_lightgbm(X_train, y_train_high)
-    model_low = train_lightgbm(X_train, 
+        model_low = train_lightgbm(X_train, y_train_low)
+
+    joblib.dump(model_high, MODEL_HIGH_PATH)
+    joblib.dump(model_low, MODEL_LOW_PATH)
+
+    # Prediksi hari terakhir
+    last_data = X.iloc[-1:]
+    predicted_high = model_high.predict(last_data)[0]
+    predicted_low = model_low.predict(last_data)[0]
+    current_price = df["Close"].iloc[-1]
+
+    predicted_profit_pct = ((predicted_high - current_price) / current_price) * 100
+    predicted_risk_pct = ((current_price - predicted_low) / current_price) * 100
+
+    # Simulasikan probabilitas berdasarkan deviasi target
+    predicted_range = predicted_high - predicted_low
+    if predicted_range <= 0:
+        return None
+    probability = min(max(predicted_profit_pct / predicted_range, 0), 1)
+
+    return {
+        "ticker": ticker,
+        "action": "BUY",
+        "price": round(current_price, 2),
+        "TP": round(predicted_high, 2),
+        "SL": round(predicted_low, 2),
+        "potential_profit": round(predicted_profit_pct, 2),
+        "probability": round(probability, 2)
+    }
+
+# === Kirim Sinyal Top 5 ===
+def send_top_signals(signals):
+    signals = [s for s in signals if s and s["probability"] > 0.7]
+    top_signals = sorted(signals, key=lambda x: x["potential_profit"], reverse=True)[:5]
+
+    if not top_signals:
+        send_telegram_message("Tidak ada sinyal dengan probabilitas > 0.7 hari ini.")
+        return
+
+    message = "<b>Top 5 Sinyal Saham Hari Ini (Prob > 0.7)</b>\n\n"
+    for s in top_signals:
+        message += (
+            f"<b>{s['ticker']}</b> - {s['action']}\n"
+            f"Harga: {s['price']} | TP: {s['TP']} | SL: {s['SL']}\n"
+            f"Potensi Profit: {s['potential_profit']}% | Prob: {s['probability']}\n\n"
+        )
+    send_telegram_message(message)
+
+# === Fungsi Utama ===
+def main():
+    logging.info("Memulai bot trading saham...")
+    stock_list = get_stock_list()
+    if not stock_list:
+        logging.warning("Gagal mengambil daftar saham.")
+        return
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        results = list(executor.map(analyze_stock, stock_list))
+
+    send_top_signals(results)
+
+if __name__ == "__main__":
+    main()
