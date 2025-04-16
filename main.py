@@ -21,8 +21,8 @@ os.makedirs(DATA_DIR, exist_ok=True)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Telegram Bot
-TELEGRAM_TOKEN = "ISI_TOKEN_ANDA"
-TELEGRAM_CHAT_ID = "ISI_CHAT_ID_ANDA"
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("CHAT_ID")
 
 # === Ambil daftar saham dari situs IDX ===
 def get_stock_list():
