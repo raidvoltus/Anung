@@ -137,7 +137,14 @@ def train_lstm(X, y):
 # === Fungsi Tambahan: Hitung Probabilitas ===
 def calculate_probability(model, X, y_true):
     y_pred = model.predict(X)
-    correct_direction = ((y_pred > X["Close"]) & (y_true > X["Close"])) | ((y_pred < X["Close"]) & (y_true < X["Close"]))
+    y_pred_series = pd.Series(y_pred, index=y_true.index)  # Menyamakan indeks
+
+    # Pastikan 'Close' juga memiliki indeks yang sesuai
+    close_price = X["Close"]
+    close_price = close_price.loc[y_true.index]  # Samakan indexnya
+
+    correct_direction = ((y_pred_series > close_price) & (y_true > close_price)) | \
+                        ((y_pred_series < close_price) & (y_true < close_price))
     prob = correct_direction.sum() / len(correct_direction)
     return prob
 
