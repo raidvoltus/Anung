@@ -20,9 +20,9 @@ MODEL_HIGH_PATH = "model_high.pkl"
 MODEL_LOW_PATH = "model_low.pkl"
 MODEL_LSTM_PATH = "model_lstm.keras"
 BACKUP_CSV_PATH = "stock_data_backup.csv"
-MAX_WORKERS = 5
+MAX_WORKERS = 7
 MIN_PROBABILITY = 0.7
-MIN_PROFIT_PERCENT = 2.0
+MIN_PROFIT_PERCENT = 1.5
 
 # === Logging ===
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -131,7 +131,7 @@ def train_lstm(X, y):
         Dense(1)
     ])
     model.compile(optimizer="adam", loss="mean_squared_error")
-    model.fit(X, y, epochs=25, batch_size=32, verbose=0)
+    model.fit(X, y, epochs=55, batch_size=32, verbose=0)
     return model
 
 def is_retraining_needed(path, interval_days=RETRAIN_INTERVAL):
