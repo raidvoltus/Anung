@@ -23,7 +23,7 @@ ATR_MULTIPLIER = 2.5
 RETRAIN_INTERVAL = 7
 MODEL_HIGH_PATH = "model_high.pkl"
 MODEL_LOW_PATH = "model_low.pkl"
-MODEL_LSTM_PATH = "model_lstm.h5"
+MODEL_LSTM_PATH = "model_lstm.keras"
 BACKUP_CSV_PATH = "stock_data_backup.csv"
 
 # === Daftar Saham ===
