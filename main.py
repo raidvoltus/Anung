@@ -21,8 +21,8 @@ MODEL_LOW_PATH = "model_low.pkl"
 MODEL_LSTM_PATH = "model_lstm.keras"
 BACKUP_CSV_PATH = "stock_data_backup.csv"
 MAX_WORKERS = 7
-MIN_PROBABILITY = 0.7
-MIN_PROFIT_PERCENT = 1.5
+MIN_PROBABILITY = 0.5
+MIN_PROFIT_PERCENT = 1.0
 
 # === Logging ===
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
