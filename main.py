@@ -113,9 +113,46 @@ def calculate_indicators(df):
 
 # === Training Model LightGBM ===
 def train_lightgbm(X, y):
-    model = lgb.LGBMRegressor(n_estimators=500, learning_rate=0.05)
-    model.fit(X, y)
-    return model
+    from lightgbm import LGBMRegressor
+    from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import StandardScaler
+    import numpy as np
+
+    # --- Preprocessing Target ---
+    # Ubah y menjadi log-return agar distribusi lebih stabil
+    y = np.log1p(y)
+
+    # --- Scaling Fitur ---
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # --- Split Data ---
+    X_train, X_valid, y_train, y_valid = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+    # --- LightGBM Model ---
+    model = LGBMRegressor(
+        objective='regression',
+        metric='rmse',
+        boosting_type='gbdt',
+        force_col_wise=True,
+        min_gain_to_split=0.001,
+        min_data_in_leaf=5,
+        learning_rate=0.05,
+        n_estimators=100,
+        verbosity=-1,
+        random_state=42
+    )
+
+    # --- Training ---
+    model.fit(
+        X_train, y_train,
+        eval_set=[(X_valid, y_valid)],
+        eval_metric='rmse',
+        early_stopping_rounds=10,
+        verbose=False
+    )
+
+    return model, scaler
 
 # === Training Model LSTM ===
 def train_lstm(X, y):
