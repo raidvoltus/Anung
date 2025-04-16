@@ -202,6 +202,6 @@ if __name__ == "__main__":
                         f"✅ Probabilitas: {r['prob_success']*100:.1f}%\n"
                         f"📌 Aksi: <b>{r['aksi'].upper()}</b>\n")
 
-       send_telegram_message(message)
+        send_telegram_message(message)
     pd.DataFrame(results).to_csv(BACKUP_CSV_PATH, index=False)
     logging.info("✅ Selesai dan data disimpan.")
