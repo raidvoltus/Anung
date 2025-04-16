@@ -169,7 +169,7 @@ def analyze_stock(ticker):
     variance = np.var([pred_high, lstm_pred])
     probability = 1.0 - min(variance / current_price, 1.0)
 
-    if risk <= 0 or reward / risk < 3 or probability < 0.8 or profit_pct < 2:
+    if probability < 0.8:
         return None
 
     return {
