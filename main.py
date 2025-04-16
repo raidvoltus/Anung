@@ -94,25 +94,37 @@ def get_stock_data(ticker, max_retries=3):
 
 def calculate_indicators(df):
     try:
-        df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=14).average_true_range()
-        df["RSI"] = momentum.RSIIndicator(df["Close"], window=14).rsi()
-        macd = trend.MACD(df["Close"])
-        df["MACD"] = macd.macd()
-        df["MACD_Hist"] = macd.macd_diff()
-        df["SMA_50"] = trend.SMAIndicator(df["Close"], window=50).sma_indicator()
-        df["SMA_200"] = trend.SMAIndicator(df["Close"], window=200).sma_indicator()
-        bb = volatility.BollingerBands(df["Close"])
+        # Volatility Indicators
+        df["ATR"] = volatility.AverageTrueRange(high=df["High"], low=df["Low"], close=df["Close"], window=14).average_true_range()
+        bb = volatility.BollingerBands(close=df["Close"], window=20)
         df["BB_Upper"] = bb.bollinger_hband()
         df["BB_Lower"] = bb.bollinger_lband()
-        df["Support"] = df["Low"].rolling(20).min()
-        df["Resistance"] = df["High"].rolling(20).max()
-        df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
-        df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"]).adx()
+
+        # Momentum Indicators
+        df["RSI"] = momentum.RSIIndicator(close=df["Close"], window=14).rsi()
+        macd = trend.MACD(close=df["Close"])
+        df["MACD"] = macd.macd()
+        df["MACD_Hist"] = macd.macd_diff()
+        df["ADX"] = trend.ADXIndicator(high=df["High"], low=df["Low"], close=df["Close"], window=14).adx()
+
+        # Trend Indicators
+        df["SMA_50"] = trend.SMAIndicator(close=df["Close"], window=50).sma_indicator()
+        df["SMA_200"] = trend.SMAIndicator(close=df["Close"], window=200).sma_indicator()
+
+        # Volume Indicator
+        df["VWAP"] = volume.VolumeWeightedAveragePrice(high=df["High"], low=df["Low"], close=df["Close"], volume=df["Volume"]).volume_weighted_average_price()
+
+        # Support and Resistance
+        df["Support"] = df["Low"].rolling(window=20).min()
+        df["Resistance"] = df["High"].rolling(window=20).max()
+
+        # Future Target (for model prediction)
         df["future_high"] = df["High"].shift(-1)
         df["future_low"] = df["Low"].shift(-1)
+
         return df.dropna()
     except Exception as e:
-        logger.error(f"Error hitung indikator: {e}")
+        logger.error(f"Error calculating indicators: {e}")
         return None
 
 def train_lightgbm(X, y):
