@@ -33,11 +33,13 @@ CHAT_ID = os.environ.get("CHAT_ID")
 
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
-# Mengambil daftar saham dari IDX
 def get_stock_list():
     url = "https://www.idx.co.id/id/data-pasar/data-saham/daftar-saham/"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
         logging.info(f"Response Status Code: {response.status_code}")
         if response.status_code != 200:
             logging.warning(f"Failed to retrieve the webpage: {response.status_code}")
@@ -58,7 +60,6 @@ def get_stock_list():
         return tickers
     except Exception as e:
         logging.warning(f"Gagal mengambil daftar saham dari situs IDX: {e}")
-        # Gunakan fallback jika terjadi kesalahan
         return load_fallback_stock_list()
 
 # Fallback daftar saham lokal
