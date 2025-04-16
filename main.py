@@ -197,6 +197,7 @@ if __name__ == "__main__":
     if top_5:
         message = "<b>📊 Top 5 Sinyal Trading Hari Ini:</b>\n"
         for r in top_5:
+            prob_avg = (r['prob_high'] + r['prob_low']) / 2
             message += (f"\n🔹 {r['ticker']}\n   💰 Harga: {r['harga']:.2f}\n   "
                         f"🎯 TP: {r['take_profit']:.2f}\n   🛑 SL: {r['stop_loss']:.2f}\n"
                         f"✅ Probabilitas: {r['prob_success']*100:.1f}%\n"
