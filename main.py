@@ -151,7 +151,7 @@ def train_lightgbm(X, y):
         early_stopping_rounds=10,
         verbose=False
     )
-
+    pred = np.expm1(model.predict(X_new_scaled))
     return model, scaler
 
 # === Training Model LSTM ===
