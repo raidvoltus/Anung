@@ -8,3 +8,4 @@ ta>=0.10.0
 joblib>=1.2.0
 requests>=2.28.0
 matplotlib>=3.6.0
+python-telegram-bot==13.15
