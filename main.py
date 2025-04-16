@@ -213,20 +213,24 @@ def main():
     top5 = sorted(results, key=lambda x: (x["potensi_profit"], x["probabilitas"]), reverse=True)[:5]
 
     if top5:
-        message = "<b>Top 5 Sinyal Trading Hari Ini</b>\n"
-        for s in top5:
-            message += (f"\n<b>{s['ticker']}</b>\nHarga: {s['harga']}\nTP: {s['take_profit']}\n"
-                        f"SL: {s['stop_loss']}\nProfit: {s['potensi_profit']}%\nProb: {s['probabilitas']}\n"
-                        f"Aksi: <b>{s['aksi'].upper()}</b>\n")
+        message = "<b>Top 5 Sinyal Saham Hari Ini</b>\n"
+        for i, stock in enumerate(top5, 1):
+            message += (
+                f"\n<b>{i}. {stock['ticker']}</b>\n"
+                f"Aksi: <b>{stock['aksi'].upper()}</b>\n"
+                f"Harga: {stock['harga']}\n"
+                f"TP: {stock['take_profit']}, SL: {stock['stop_loss']}\n"
+                f"Potensi: {stock['potensi_profit']}%, Probabilitas: {stock['probabilitas']}\n"
+            )
         send_telegram_message(message)
+        logger.info("Sinyal dikirim ke Telegram.")
     else:
-        send_telegram_message("Tidak ada sinyal trading yang memenuhi kriteria hari ini.")
-
-    pd.DataFrame(results).to_csv(BACKUP_CSV_PATH, index=False)
-    logger.info("Analisis selesai. Data disimpan.")
+        logger.info("Tidak ada sinyal yang memenuhi kriteria hari ini.")
+        send_telegram_message("Tidak ada sinyal yang memenuhi kriteria hari ini.")
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        logger.exception(f"Script gagal: {e}")
+        logger.exception(f"Terjadi kesalahan fatal: {e}")
+        send_telegram_message(f"Bot trading mengalami error: {e}")
