@@ -127,8 +127,9 @@ def analyze_stock(ticker):
     joblib.dump(model_low, MODEL_LOW_PATH)
     model_lstm.save(MODEL_LSTM_PATH)
 
-    pred_high = model_high.predict(X.iloc[-1:].values)[0]
-    pred_low = model_low.predict(X.iloc[-1:].values)[0]
+    X_last = X.iloc[-1:]
+    pred_high = model_high.predict(X_last)[0]
+    pred_low = model_low.predict(X_last)[0]
     current_price = df["Close"].iloc[-1]
 
     risk = current_price - pred_low
