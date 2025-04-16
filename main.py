@@ -33,22 +33,42 @@ CHAT_ID = os.environ.get("CHAT_ID")
 
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
-# Ambil daftar saham dari IDX
+# Mengambil daftar saham dari IDX
 def get_stock_list():
     url = "https://www.idx.co.id/id/data-pasar/data-saham/daftar-saham/"
     try:
         response = requests.get(url)
+        logging.info(f"Response Status Code: {response.status_code}")
+        if response.status_code != 200:
+            logging.warning(f"Failed to retrieve the webpage: {response.status_code}")
+            return []
+
         soup = BeautifulSoup(response.text, "html.parser")
         table = soup.find("table")
+        if table is None:
+            logging.warning("Tabel tidak ditemukan pada halaman IDX.")
+            return []
+
         tickers = []
         for row in table.find_all("tr")[1:]:
             cols = row.find_all("td")
-            if cols:
+            if len(cols) > 0:
                 ticker = cols[0].text.strip()
                 tickers.append(f"{ticker}.JK")
         return tickers
     except Exception as e:
         logging.warning(f"Gagal mengambil daftar saham dari situs IDX: {e}")
+        # Gunakan fallback jika terjadi kesalahan
+        return load_fallback_stock_list()
+
+# Fallback daftar saham lokal
+def load_fallback_stock_list():
+    logging.info("Menggunakan daftar saham fallback lokal...")
+    try:
+        with open("stock_list_fallback.txt", "r") as f:
+            return [line.strip() for line in f.readlines()]
+    except Exception as e:
+        logging.warning(f"Gagal memuat daftar saham fallback: {e}")
         return []
 
 # Ambil data harga
