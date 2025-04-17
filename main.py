@@ -161,24 +161,28 @@ def analyze_stock(ticker):
     features = ["Close", "ATR", "RSI", "MACD", "MACD_Hist", "SMA_20", "SMA_50", "SMA_200", "BB_Upper", "BB_Lower", "Support", "Resistance", "VWAP", "ADX"]
     df = df.dropna(subset=features + ["future_high", "future_low"])
     X = df[features]
-    y_high, y_low = df["future_high"], df["future_low"]
+    y_high = df["future_high"]
+    y_low = df["future_low"]
 
-    X_train, X_test, y_train_high, y_test_high = train_test_split(X, y_high, test_size=0.2)
-    _, _, y_train_low, y_test_low = train_test_split(X, y_low, test_size=0.2)
+    # Split data sekaligus untuk jaga sinkronisasi
+    X_train, X_test, y_high_train, y_high_test, y_low_train, y_low_test = train_test_split(
+        X, y_high, y_low, test_size=0.2, random_state=42
+    )
 
-    model_high = train_lightgbm(X_train, y_train_high)
-    model_low = train_lightgbm(X_train, y_train_low)
-    model_lstm = train_lstm(X_train, y_train_high)
+    model_high = train_lightgbm(X_train, y_high_train)
+    model_low = train_lightgbm(X_train, y_low_train)
+    model_lstm = train_lstm(X_train, y_high_train)
 
-    prob_high = calculate_probability(model_high, X_test, y_test_high)
-    prob_low = calculate_probability(model_low, X_test, y_test_low)
+    prob_high = calculate_probability(model_high, X_test, y_high_test)
+    prob_low = calculate_probability(model_low, X_test, y_low_test)
 
     if prob_high < 0.6 or prob_low < 0.6:
-        return None  # Tidak cukup probabilitas
+        return None
 
-    joblib.dump(model_high, MODEL_HIGH_PATH)
-    joblib.dump(model_low, MODEL_LOW_PATH)
-    model_lstm.save(MODEL_LSTM_PATH)
+    # Simpan model per ticker (opsional, jika perlu)
+    joblib.dump(model_high, f"model_high_{ticker}.pkl")
+    joblib.dump(model_low, f"model_low_{ticker}.pkl")
+    model_lstm.save(f"model_lstm_{ticker}.h5")
 
     X_last = X.iloc[-1:]
     pred_high = model_high.predict(X_last)[0]
