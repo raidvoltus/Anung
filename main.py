@@ -223,6 +223,23 @@ def analyze_stock(ticker: str):
         "profit_potential_pct": round(profit_potential_pct, 2),
     }
 
+# === Daftar Kutipan Motivasi ===
+MOTIVATION_QUOTES = [
+    "Setiap peluang adalah langkah kecil menuju kebebasan finansial.",
+    "Cuan bukan tentang keberuntungan, tapi tentang konsistensi dan strategi.",
+    "Disiplin hari ini, hasil luar biasa nanti.",
+    "Trader sukses bukan yang selalu benar, tapi yang selalu siap.",
+    "Naik turun harga itu biasa, yang penting arah portofolio naik.",
+    "Fokus pada proses, profit akan menyusul.",
+    "Jangan hanya lihat harga, lihat potensi di baliknya.",
+    "Ketika orang ragu, itulah peluang sesungguhnya muncul.",
+    "Investasi terbaik adalah pada pengetahuan dan ketenangan diri.",
+    "Satu langkah hari ini lebih baik dari seribu penyesalan besok."
+]
+
+def get_random_motivation() -> str:
+    return random.choice(MOTIVATION_QUOTES)
+
 # === Eksekusi & Kirim Sinyal ===
 if __name__ == "__main__":
     logging.info("🚀 Memulai analisis saham...")
@@ -231,17 +248,19 @@ if __name__ == "__main__":
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         results = list(executor.map(analyze_stock, STOCK_LIST))
 
-    # Filter hasil valid
     results = [r for r in results if r]
 
-    # Simpan backup CSV
     pd.DataFrame(results).to_csv(BACKUP_CSV_PATH, index=False)
     logging.info("✅ Backup CSV disimpan")
 
-    # Ambil top 5 berdasarkan take_profit
     top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
     if top_5:
-        message = "<b>📊 Sini Gua Bisikin, Top 5 Sinyal Trading Hari Ini:</b>\n"
+        motivation = get_random_motivation()
+        message = (
+            f"<b>📊 Sinyal Trading Hari Ini</b>\n"
+            f"<i>{motivation}</i>\n\n"
+            f"Top 5 saham pilihan berdasarkan analisa model AI:\n"
+        )
         for r in top_5:
             message += (
                 f"\n🔹 {r['ticker']}\n"
