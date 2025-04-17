@@ -236,6 +236,17 @@ MOTIVATION_QUOTES = [
     "Ketika orang ragu, itulah peluang sesungguhnya muncul.",
     "Investasi terbaik adalah pada pengetahuan dan ketenangan diri.",
     "Satu langkah hari ini lebih baik dari seribu penyesalan besok."
+        # === Bahasa Sunda ===
+    "Moal rugi jalma nu talek jeung tekadna kuat.",
+    "Rejeki mah moal ka tukang, asal usaha jeung sabar.",
+    "Lamun hayang hasil nu beda, ulah make cara nu sarua terus.",
+    "Ulah sieun gagal, sieun lamun teu nyobaan.",
+    "Cuan nu leres asal ti élmu jeung kasabaran.",
+    "Sabada hujan pasti aya panonpoé, sabada rugi bisa aya untung.",
+    "Ngabagéakeun resiko teh bagian tina kamajuan.",
+    "Jalma nu kuat téh lain nu teu pernah rugi, tapi nu sanggup bangkit deui.",
+    "Ngora kudu wani nyoba, heubeul kudu wani investasi.",
+    "Reureujeungan ayeuna, kabagjaan engké."
 ]
 
 def get_random_motivation() -> str:
