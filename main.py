@@ -247,6 +247,16 @@ MOTIVATION_QUOTES = [
     "Jalma nu kuat téh lain nu teu pernah rugi, tapi nu sanggup bangkit deui.",
     "Ngora kudu wani nyoba, heubeul kudu wani investasi.",
     "Reureujeungan ayeuna, kabagjaan engké."
+    "Niat alus, usaha terus, hasil bakal nuturkeun.",
+    "Ulah ngadagoan waktu nu pas, tapi cobian ayeuna.",
+    "Hirup teh kawas saham, kadang naek kadang turun, tapi ulah leungit arah.",
+    "Sakumaha gede ruginya, élmu nu diala leuwih mahal hargana.",
+    "Ulah beuki loba mikir, beuki saeutik tindakan.",
+    "Kabagjaan datang ti tangtungan jeung harepan nu dilaksanakeun.",
+    "Panghasilan teu datang ti ngalamun, tapi ti aksi jeung analisa.",
+    "Sasat nu bener, bakal mawa kana untung nu lila.",
+    "Tong ukur ningali batur nu untung, tapi diajar kumaha cara maranéhna usaha.",
+    "Jalma sukses mah sok narima gagal minangka bagian ti perjalanan."
 ]
 
 def get_random_motivation() -> str:
