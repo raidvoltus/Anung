@@ -237,7 +237,7 @@ if __name__ == "__main__":
     # Ambil top 5 berdasarkan take_profit
     top_5 = sorted(results, key=lambda x: x["take_profit"], reverse=True)[:5]
     if top_5:
-        message = "<b>📊 Top 5 Sinyal Trading Hari Ini:</b>\n"
+        message = "<b>📊 Sini Gua Bisikin, Top 5 Sinyal Trading Hari Ini:</b>\n"
         for r in top_5:
             message += (
                 f"\n🔹 {r['ticker']}\n"
