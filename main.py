@@ -202,16 +202,15 @@ def analyze_stock(ticker: str):
         return None
 
     # -- Prediksi sinyal terbaru --
-    if action == "beli":
-        profit_potential_pct = (ph - price) / price * 100
-    else:
-        profit_potential_pct = (price - pl) / price * 100
     X_last    = X.iloc[-1:]
     ph        = model_high.predict(X_last)[0]
     pl        = model_low.predict(X_last)[0]
     action    = "beli" if ph > price else "jual"
     prob_succ = (prob_high + prob_low) / 2
-
+    if action == "beli":
+        profit_potential_pct = (ph - price) / price * 100
+    else:
+        profit_potential_pct = (price - pl) / price * 100
     return {
         "ticker":       ticker,
         "harga":        round(price,     2),
