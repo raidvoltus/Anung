@@ -291,7 +291,7 @@ if __name__ == "__main__":
         message = (
             f"<b>📊 Sinyal Trading Hari Ini</b>\n"
             f"<i>{motivation}</i>\n\n"
-            f"Top 5 saham pilihan berdasarkan analisa model AI:\n"
+            f"Top 5 saham pilihan berdasarkan analisa NUNG AI:\n"
         )
         for r in top_5:
             message += (
