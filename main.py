@@ -289,6 +289,7 @@ if __name__ == "__main__":
     if top_5:
         motivation = get_random_motivation()
         message = (
+            f"<b>Hai Barudak KONTIL</b>\n"
             f"<b>📊 Sinyal Trading Hari Ini</b>\n"
             f"<b><i>{motivation}</i></b>\n\n"
             f"Top 5 saham pilihan berdasarkan analisa NUNG AI:\n"
