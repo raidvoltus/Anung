@@ -206,6 +206,7 @@ def analyze_stock(ticker: str):
     ph        = model_high.predict(X_last)[0]
     pl        = model_low.predict(X_last)[0]
     action    = "beli" if ph > price else "jual"
+    profit_potential = ph - price if action == "beli" else price - pl
     prob_succ = (prob_high + prob_low) / 2
 
     return {
@@ -217,6 +218,7 @@ def analyze_stock(ticker: str):
         "prob_high":    round(prob_high, 2),
         "prob_low":     round(prob_low,  2),
         "prob_success": round(prob_succ,  2)
+        "profit_potential": round(profit_potential, 2)
     }
 
 # === Eksekusi & Kirim Sinyal ===
@@ -244,6 +246,7 @@ if __name__ == "__main__":
                 f"   💰 Harga: {r['harga']:.2f}\n"
                 f"   🎯 TP: {r['take_profit']:.2f}\n"
                 f"   🛑 SL: {r['stop_loss']:.2f}\n"
+                f"   📈 Potensi Profit: {r['profit_potential']:.2f}\n"
                 f"   ✅ Probabilitas: {r['prob_success']*100:.1f}%\n"
                 f"   📌 Aksi: <b>{r['aksi'].upper()}</b>\n"
             )
