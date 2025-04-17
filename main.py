@@ -91,8 +91,8 @@ def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df["SMA_100"]    = trend.SMAIndicator(df["Close"], window=100).sma_indicator()
     df["VWAP"]       = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
     df["ADX"]        = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=20).adx()
-    df["future_high"] = df["High"].rolling(24).max().shift(-24)
-    df["future_low"] = df["Low"].rolling(24).min().shift(-24)
+    df["future_high"] = df["High"].rolling(12).max().shift(-12)
+    df["future_low"] = df["Low"].rolling(12).min().shift(-12)
     return df.dropna()
 
 # === Training LightGBM ===
@@ -236,7 +236,6 @@ MOTIVATION_QUOTES = [
     "Ketika orang ragu, itulah peluang sesungguhnya muncul.",
     "Investasi terbaik adalah pada pengetahuan dan ketenangan diri.",
     "Satu langkah hari ini lebih baik dari seribu penyesalan besok."
-        # === Bahasa Sunda ===
     "Moal rugi jalma nu talek jeung tekadna kuat.",
     "Rejeki mah moal ka tukang, asal usaha jeung sabar.",
     "Lamun hayang hasil nu beda, ulah make cara nu sarua terus.",
@@ -267,6 +266,31 @@ MOTIVATION_QUOTES = [
     "Sugan ayeuna can untung, tapi tong hilap, tiap analisa téh tabungan pangalaman.",
     "Tenang lain berarti nyerah, tapi ngatur posisi jeung nunggu waktu nu pas.",
     "Sagalana dimimitian ku niat, dilaksanakeun ku disiplin, jeung dipanen ku waktu."
+    "“Suatu saat akan datang hari di mana semua akan menjadi kenangan.” – Erza Scarlet (Fairy Tail)",
+    "“Lebih baik menerima kejujuran yang pahit, daripada kebohongan yang manis.” – Soichiro Yagami (Death Note)",
+    "“Jangan menyerah. Hal memalukan bukanlah ketika kau jatuh, tetapi ketika kau tidak mau bangkit lagi.” – Midorima Shintarou (Kuroko no Basuke)",
+    "“Jangan khawatirkan apa yang dipikirkan orang lain. Tegakkan kepalamu dan melangkahlah ke depan.” – Izuku Midoriya (Boku no Hero Academia)",
+    "“Tuhan tak akan menempatkan kita di sini melalui derita demi derita bila Ia tak yakin kita bisa melaluinya.” – Kano Yuki (Sword Art Online)",
+    "“Mula-mula, kau harus mengubah dirimu sendiri atau tidak akan ada yang berubah untukmu.” – Sakata Gintoki (Gintama)",
+    "“Banyak orang gagal karena mereka tidak memahami usaha yang diperlukan untuk menjadi sukses.” – Yukino Yukinoshita (Oregairu)",
+    "“Kekuatan sejati dari umat manusia adalah bahwa kita memiliki kuasa penuh untuk mengubah diri kita sendiri.” – Saitama (One Punch Man)",
+    "“Hidup bukanlah permainan keberuntungan. Jika kau ingin menang, kau harus bekerja keras.” – Sora (No Game No Life)",
+    "“Kita harus mensyukuri apa yang kita punya saat ini karena mungkin orang lain belum tentu mempunyainya.” – Kayaba Akihiko (Sword Art Online)",
+    "“Kalau kau ingin menangis karena gagal, berlatihlah lebih keras lagi sehingga kau pantas menangis ketika kau gagal.” – Megumi Takani (Samurai X)",
+    "“Ketika kau bekerja keras dan gagal, penyesalan itu akan cepat berlalu. Berbeda dengan penyesalan ketika tidak berani mencoba.” – Akihiko Usami (Junjou Romantica)",
+    "“Ketakutan bukanlah kejahatan. Itu memberitahukan apa kelemahanmu. Dan begitu tahu kelemahanmu, kamu bisa menjadi lebih kuat.” – Gildarts (Fairy Tail)",
+    "“Untuk mendapatkan kesuksesan, keberanianmu harus lebih besar daripada ketakutanmu.” – Han Juno (Eureka Seven)",
+    "“Kegagalan seorang pria yang paling sulit yaitu ketika dia gagal untuk menghentikan air mata seorang wanita.” – Kasuka Heiwajima (Durarara!)",
+    "“Air mata palsu bisa menyakiti orang lain. Tapi, senyuman palsu hanya akan menyakiti dirimu sendiri.” – C.C (Code Geass)",
+    "“Kita harus menjalani hidup kita sepenuhnya. Kamu tidak pernah tahu, kita mungkin sudah mati besok.” – Kaori Miyazono (Shigatsu wa Kimi no Uso)",
+    "“Bagaimana kamu bisa bergerak maju kalau kamu terus menyesali masa lalu?” – Edward Elric (Fullmetal Alchemist: Brotherhood)",
+    "“Jika kau seorang pria, buatlah wanita yang kau cintai jatuh cinta denganmu apa pun yang terjadi!” – Akhio (Clannad)",
+    "“Semua laki-laki mudah cemburu dan bego, tapi perempuan malah menyukainya. Orang jadi bodoh saat jatuh cinta.” – Horo (Spice and Wolf)",
+    "“Wanita itu sangat indah, satu senyuman mereka saja sudah menjadi sebuah keajaiban.” – Onigiri (Air Gear)",
+    "“Saat kamu harus memilih satu cinta aja, pasti ada orang lain yang menangis.” – Tsubame (Ai Kora)",
+    "“Aku tidak suka hubungan yang tidak jelas.” – Senjougahara (Bakemonogatari)",
+    "“Cewek itu seharusnya lembut dan baik, dan bisa menyembuhkan luka di hati.” – Yoshii (Baka to Test)",
+    "“Keluargamu adalah pahlawanmu.” – Sinchan (C. Sinchan)"
 ]
 
 def get_random_motivation() -> str:
