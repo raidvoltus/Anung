@@ -290,7 +290,7 @@ if __name__ == "__main__":
         motivation = get_random_motivation()
         message = (
             f"<b>📊 Sinyal Trading Hari Ini</b>\n"
-            f"<b><i>{motivation}</i></b>\n\n"
+            f"<b><i>{motivation}by. Kontil Clan</i></b>\n\n"
             f"Top 5 saham pilihan berdasarkan analisa NUNG AI:\n"
         )
         for r in top_5:
