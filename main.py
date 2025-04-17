@@ -55,7 +55,7 @@ def send_telegram_message(message: str):
 def get_stock_data(ticker: str) -> pd.DataFrame:
     try:
         stock = yf.Ticker(ticker)
-        df    = stock.history(period="max", interval="1d")
+        df    = stock.history(period="730d", interval="1d")
         if df is not None and not df.empty and len(df) >= 200:
             df["ticker"] = ticker
             return df
