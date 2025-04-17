@@ -246,7 +246,7 @@ if __name__ == "__main__":
                 f"   💰 Harga: {r['harga']:.2f}\n"
                 f"   🎯 TP: {r['take_profit']:.2f}\n"
                 f"   🛑 SL: {r['stop_loss']:.2f}\n"
-                f"   📈 Potensi Profit: {r['profit_potential']:.2f}\n"
+                f"   📈 Potensi Profit: {r['profit_potential_pct']:.2f}%\n"
                 f"   ✅ Probabilitas: {r['prob_success']*100:.1f}%\n"
                 f"   📌 Aksi: <b>{r['aksi'].upper()}</b>\n"
             )
