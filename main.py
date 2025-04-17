@@ -63,7 +63,7 @@ def send_telegram_message(message: str):
 def get_stock_data(ticker: str) -> pd.DataFrame:
     try:
         stock = yf.Ticker(ticker)
-        df    = stock.history(period="1y", interval="1h")
+        df    = stock.history(period="730d", interval="1h")
         if df is not None and not df.empty and len(df) >= 200:
             df["ticker"] = ticker
             return df
@@ -90,8 +90,8 @@ def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df["SMA_200"]    = trend.SMAIndicator(df["Close"], window=200).sma_indicator()
     df["VWAP"]       = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
     df["ADX"]        = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=14).adx()
-    df["future_high"] = df["High"].rolling(1).max().shift(-1)
-    df["future_low"] = df["Low"].rolling(1).min().shift(-1)
+    df["future_high"] = df["High"].rolling(6).max().shift(-6)
+    df["future_low"] = df["Low"].rolling(6).min().shift(-6)
     return df.dropna()
 
 # === Training LightGBM ===
