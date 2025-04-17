@@ -90,9 +90,9 @@ def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df["SMA_40"]     = trend.SMAIndicator(df["Close"], window=40).sma_indicator()
     df["SMA_100"]    = trend.SMAIndicator(df["Close"], window=100).sma_indicator()
     df["VWAP"]       = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
-    df["ADX"]        = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=14).adx()
-    df["future_high"] = df["High"].rolling(12).max().shift(-12)
-    df["future_low"] = df["Low"].rolling(12).min().shift(-12)
+    df["ADX"]        = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=20).adx()
+    df["future_high"] = df["High"].rolling(24).max().shift(-24)
+    df["future_low"] = df["Low"].rolling(24).min().shift(-24)
     return df.dropna()
 
 # === Training LightGBM ===
