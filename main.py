@@ -314,8 +314,8 @@ if __name__ == "__main__":
         motivation = get_random_motivation()
         message = (
             f"<b>💩Hai KONTIL Clan Member💩</b>\n"
-            f"<b>📖Apapun Yang Sedang Kalian Hadapi Saat Ini, Ingatlah...📖</b>\n"
-            f"<b><i>💎🔥{motivation}🔥💎</i></b>\n\n"
+            f"<b>Apapun Yang Sedang Kalian Hadapi Saat Ini, Ingatlah...</b>\n"
+            f"<b><i>{motivation}</i></b>\n\n"
             f"Berikut Top 5 saham pilihan berdasarkan analisa NUNG AI:\n"
         )
         for r in top_5:
