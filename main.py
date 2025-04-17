@@ -354,7 +354,7 @@ if __name__ == "__main__":
             f"<b>💩Hai KONTIL Clan Member💩</b>\n"
             f"<b>Apapun Yang Sedang Kalian Hadapi Saat Ini, Ingatlah...</b>\n"
             f"<b><i>{motivation}</i></b>\n\n"
-            f"<b>Berikut Top 5 saham pilihan berdasarkan analisa NUNG AI:</b>\n"
+            f"<b>Berikut Top 5 saham pilihan berdasarkan analisa KONTIL AI:</b>\n"
         )
         for r in top_5:
             message += (
