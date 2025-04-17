@@ -217,8 +217,8 @@ def analyze_stock(ticker: str):
         "aksi":         action,
         "prob_high":    round(prob_high, 2),
         "prob_low":     round(prob_low,  2),
-        "prob_success": round(prob_succ,  2)
-        "profit_potential": round(profit_potential, 2)
+        "prob_success": round(prob_succ,  2),
+        "profit_potential": round(profit_potential, 2),
     }
 
 # === Eksekusi & Kirim Sinyal ===
