@@ -51,6 +51,9 @@ log_handler   = RotatingFileHandler("trading.log", maxBytes=5*1024*1024, backupC
 log_handler.setFormatter(log_formatter)
 logging.getLogger().addHandler(log_handler)
 logging.basicConfig(level=logging.INFO)
+def log_prediction(ticker: str, tanggal: str, pred_high: float, pred_low: float, harga_awal: float):
+    with open("prediksi_log.csv", "a") as f:
+        f.write(f"{ticker},{tanggal},{harga_awal},{pred_high},{pred_low}\n")
 
 # === Lock untuk Thread-Safe Model Saving ===
 model_save_lock = threading.Lock()
@@ -273,6 +276,10 @@ def analyze_stock(ticker: str):
         profit_potential_pct = (ph - price) / price * 100
     else:
         profit_potential_pct = (price - pl) / price * 100
+    # === Logging Prediksi ===
+    tanggal = pd.Timestamp.now().strftime("%Y-%m-%d")
+    log_prediction(ticker, tanggal, ph, pl, price)
+
     return {
         "ticker":       ticker,
         "harga":        round(price,     2),
@@ -285,6 +292,35 @@ def analyze_stock(ticker: str):
         "profit_potential_pct": round(profit_potential_pct, 2),
     }
 
+def retrain_if_needed(ticker: str):
+    akurasi_map = evaluate_prediction_accuracy()
+    akurasi = akurasi_map.get(ticker, 1.0)  # default 100%
+    if akurasi < 0.90:
+        logging.info(f"Akurasi model {ticker} rendah ({akurasi:.2%}), retraining...")
+        df = get_stock_data(ticker)
+        if df is None:
+            return
+        df = calculate_indicators(df)
+        df = df.dropna(subset=["future_high", "future_low"])
+        features = [...]  # gunakan fitur sama seperti sebelumnya
+        X = df[features]
+        y_high = df["future_high"]
+        y_low = df["future_low"]
+        model_high = train_lightgbm(X, y_high)
+        joblib.dump(model_high, f"model_high_{ticker}.pkl")
+        model_low = train_lightgbm(X, y_low)
+        joblib.dump(model_low, f"model_low_{ticker}.pkl")
+        
+def evaluate_prediction_accuracy() -> Dict[str, float]:
+    if not os.path.exists("prediksi_log.csv"):
+        return {}
+    df_log = pd.read_csv("prediksi_log.csv")
+    df_data = get_realized_price_data()  # Fungsi ini harus Anda definisikan
+    df_merged = df_log.merge(df_data, on=["ticker", "tanggal"])
+    df_merged["benar"] = ((df_merged["actual_high"] >= df_merged["pred_high"]) & 
+                          (df_merged["actual_low"] <= df_merged["pred_low"]))
+    return df_merged.groupby("ticker")["benar"].mean().to_dict()
+    
 # === Daftar Kutipan Motivasi ===
 MOTIVATION_QUOTES = [
     "Setiap peluang adalah langkah kecil menuju kebebasan finansial.",
