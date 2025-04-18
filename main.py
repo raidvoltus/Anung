@@ -123,18 +123,27 @@ def train_lightgbm(
     return model
 
 # === Training LSTM ===
-def train_lstm(X: pd.DataFrame, y: pd.Series) -> Sequential:
+def train_lstm(
+    X: pd.DataFrame,
+    y: pd.Series,
+    lstm_units: int = 64,
+    dropout_rate: float = 0.2,
+    dense_units: int = 32,
+    epochs: int = 55,
+    batch_size: int = 32,
+    verbose: int = 0
+) -> Sequential:
     X_arr = np.reshape(X.values, (X.shape[0], X.shape[1], 1))
     model = Sequential([
-        LSTM(64, return_sequences=True, input_shape=(X.shape[1], 1)),
-        Dropout(0.2),
-        LSTM(64),
-        Dropout(0.2),
-        Dense(32, activation="relu"),
+        LSTM(lstm_units, return_sequences=True, input_shape=(X.shape[1], 1)),
+        Dropout(dropout_rate),
+        LSTM(lstm_units),
+        Dropout(dropout_rate),
+        Dense(dense_units, activation="relu"),
         Dense(1)
     ])
     model.compile(optimizer="adam", loss="mean_squared_error")
-    model.fit(X_arr, y, epochs=55, batch_size=32, verbose=0)
+    model.fit(X_arr, y, epochs=epochs, batch_size=batch_size, verbose=verbose)
     return model
 
 # === Hitung Probabilitas Arah Prediksi ===
