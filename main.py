@@ -284,9 +284,11 @@ def analyze_stock(ticker: str):
         "daily_avg", "daily_std", "daily_range",
         "is_opening_hour", "is_closing_hour"
     ]
+    
+    # --- Cek dan reset model bila fitur berubah ---
+    check_and_reset_model_if_needed(ticker, features)
 
     df = df.dropna(subset=features + ["future_high", "future_low"])
-
     X      = df[features]
     y_high = df["future_high"]
     y_low  = df["future_low"]
