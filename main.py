@@ -3,6 +3,8 @@ import glob
 import time
 import threading
 import joblib
+import hashlib
+import json
 import requests
 import random
 import logging
@@ -27,6 +29,7 @@ CHAT_ID          = os.environ.get("CHAT_ID")
 ATR_MULTIPLIER   = 2.5
 RETRAIN_INTERVAL = 7
 BACKUP_CSV_PATH  = "stock_data_backup.csv"
+HASH_PATH = "features_hash.json"
 # Konstanta threshold (letakkan di atas fungsi analyze_stock)
 MIN_PRICE = 100
 MIN_VOLUME = 10000
