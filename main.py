@@ -335,7 +335,7 @@ def analyze_stock(ticker: str):
     prob_high = calculate_probability(model_high, X_te, yh_te)
     prob_low  = calculate_probability(model_low,  X_te, yl_te)
 
-    if prob_high < 0.6 or prob_low < 0.6:
+    if prob_high < 0.8 or prob_low < 0.8:
         logging.info(f"{ticker} dilewati: prob rendah (H={prob_high:.2f}, L={prob_low:.2f})")
         return None
 
@@ -368,7 +368,7 @@ def analyze_stock(ticker: str):
 def retrain_if_needed(ticker: str):
     akurasi_map = evaluate_prediction_accuracy()
     akurasi = akurasi_map.get(ticker, 1.0)  # default 100%
-    if akurasi < 0.90:
+    if akurasi < 0.95:
         logging.info(f"Akurasi model {ticker} rendah ({akurasi:.2%}), retraining...")
         df = get_stock_data(ticker)
         if df is None:
