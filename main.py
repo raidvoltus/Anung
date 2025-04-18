@@ -80,26 +80,47 @@ def get_stock_data(ticker: str) -> pd.DataFrame:
         logging.error(f"Error mengambil data {ticker}: {e}")
     return None
 
-# === Hitung Indikator Teknikal ===
+# === Hitung Indikator ===
 def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
-    df["ATR"]        = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=20).average_true_range()
-    macd             = trend.MACD(df["Close"])
-    df["MACD"]       = macd.macd()
-    df["MACD_Hist"]  = macd.macd_diff()
-    bb               = volatility.BollingerBands(df["Close"], window=20)
-    df["BB_Upper"]   = bb.bollinger_hband()
-    df["BB_Lower"]   = bb.bollinger_lband()
-    df["Support"]    = df["Low"].rolling(window=30).min()
-    df["Resistance"] = df["High"].rolling(window=30).max()
-    stoch            = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=20)
-    df["RSI"]        = momentum.RSIIndicator(df["Close"], window=20).rsi()
-    df["SMA_20"]     = trend.SMAIndicator(df["Close"], window=20).sma_indicator()
-    df["SMA_40"]     = trend.SMAIndicator(df["Close"], window=40).sma_indicator()
-    df["SMA_100"]    = trend.SMAIndicator(df["Close"], window=100).sma_indicator()
-    df["VWAP"]       = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
-    df["ADX"]        = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=20).adx()
-    df["future_high"] = df["High"].rolling(12).max().shift(-12)
-    df["future_low"] = df["Low"].rolling(12).min().shift(-12)
+    HOURS_PER_DAY = 6  # jumlah jam trading aktif per hari
+
+    # === Indikator teknikal utama ===
+    df["ATR"] = volatility.AverageTrueRange(df["High"], df["Low"], df["Close"], window=14).average_true_range()
+    
+    macd = trend.MACD(df["Close"])
+    df["MACD"] = macd.macd()
+    df["MACD_Hist"] = macd.macd_diff()
+    
+    bb = volatility.BollingerBands(df["Close"], window=20)
+    df["BB_Upper"] = bb.bollinger_hband()
+    df["BB_Lower"] = bb.bollinger_lband()
+
+    df["Support"] = df["Low"].rolling(window=48).min()
+    df["Resistance"] = df["High"].rolling(window=48).max()
+
+    df["RSI"] = momentum.RSIIndicator(df["Close"], window=14).rsi()
+    df["SMA_14"] = trend.SMAIndicator(df["Close"], window=14).sma_indicator()
+    df["SMA_28"] = trend.SMAIndicator(df["Close"], window=28).sma_indicator()
+    df["SMA_84"] = trend.SMAIndicator(df["Close"], window=84).sma_indicator()
+    df["EMA_10"] = trend.EMAIndicator(df["Close"], window=10).ema_indicator()
+    df["VWAP"] = volume.VolumeWeightedAveragePrice(df["High"], df["Low"], df["Close"], df["Volume"]).volume_weighted_average_price()
+    df["ADX"] = trend.ADXIndicator(df["High"], df["Low"], df["Close"], window=14).adx()
+    df["CCI"] = trend.CCIIndicator(df["High"], df["Low"], df["Close"], window=20).cci()
+    df["Momentum"] = momentum.ROCIndicator(df["Close"], window=12).roc()
+    df["WilliamsR"] = momentum.WilliamsRIndicator(df["High"], df["Low"], df["Close"], lbp=14).williams_r()
+
+    # === Fitur waktu harian ===
+    df["hour"] = df.index.hour
+    df["is_opening_hour"] = (df["hour"] == 9).astype(int)
+    df["is_closing_hour"] = (df["hour"] == 14).astype(int)
+    df["daily_avg"] = df["Close"].rolling(HOURS_PER_DAY).mean()
+    df["daily_std"] = df["Close"].rolling(HOURS_PER_DAY).std()
+    df["daily_range"] = df["High"].rolling(HOURS_PER_DAY).max() - df["Low"].rolling(HOURS_PER_DAY).min()
+
+    # === Target prediksi: harga tertinggi & terendah BESOK ===
+    df["future_high"] = df["High"].shift(-HOURS_PER_DAY).rolling(HOURS_PER_DAY).max()
+    df["future_low"]  = df["Low"].shift(-HOURS_PER_DAY).rolling(HOURS_PER_DAY).min()
+
     return df.dropna()
 
 # === Training LightGBM ===
