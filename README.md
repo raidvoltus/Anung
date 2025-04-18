@@ -59,6 +59,53 @@ Bot akan melewati saham yang:
 ### 10. **Backup Otomatis**
 - Hasil analisis disimpan dalam file `stock_data_backup.csv` setiap hari.
 
+# Anung AI — Automated Stock Trading Bot
+
+Anung AI adalah sistem trading saham otomatis berbasis Python yang menggunakan LightGBM & LSTM untuk memprediksi harga tertinggi dan terendah hari berikutnya. Bot ini dilengkapi dengan:
+
+- **Data ingestion** via Yahoo Finance (`yfinance`) interval 1‑jam  
+- **Lebih dari 20 indikator teknikal** (ATR, MACD, RSI, SMA/EMA, VWAP, CCI, Momentum, dll.)  
+- **Filter probabilitas arah** prediksi (hanya sinyal dengan akurasi ≥ 60 %)  
+- **Logging & evaluasi performa** terhadap realisasi harga  
+- **Retraining otomatis** jika akurasi model per‑ticker turun di bawah 90 %  
+- **Auto‑reset model** saat struktur fitur berubah  
+- **Notifikasi sinyal** lewat Telegram Bot API  
+- **CI/CD** dengan GitHub Actions untuk penjadwalan, eksekusi, dan push otomatis  
+
+---
+
+## 📋 Fitur Utama
+
+1. **Prediksi Besok**  
+   - Target: `future_high`, `future_low` besok (6 candle 1‑jam)  
+   - Fitur agregat harian: `daily_avg`, `daily_std`, `daily_range`  
+
+2. **Self‑Learning & Auto‑Retrain**  
+   - Logging prediksi & realisasi (`prediksi_log.csv`)  
+   - Evaluasi akurasi per-ticker (≥ 90 %)  
+   - Retrain LightGBM & LSTM saat performa menurun
+
+3. **Auto‑Reset Model**  
+   - Hash struktur `features` disimpan di `features_hash.json`  
+   - Model lama dihapus & retrain otomatis setiap kali `main.py` dijalankan jika fitur berubah  
+
+4. **Telegram Notification**  
+   - Ekstrak sinyal dari log  
+   - Kirim pesan ke CHAT_ID via Bot TOKEN  
+
+5. **CI/CD with GitHub Actions**  
+   - Jadwal: Senin–Jumat pukul 11:00 & 15:00 WIB  
+   - Workflow: run bot → publish sinyal → pull‑rebase & push repo  
+
+---
+
+## 🚀 Instalasi & Setup
+
+1. **Clone repository**  
+   ```bash
+   git clone https://github.com/raidvoltus/Anung.git
+   cd Anung
+  
 ## Kebutuhan Lingkungan
 - Python 3.8+
 - Library: `yfinance`, `ta`, `lightgbm`, `tensorflow`, `pandas`, `numpy`, `joblib`, `requests`
