@@ -211,6 +211,37 @@ def load_or_train_model(path, train_func, X, y):
         logging.info(f"Trained & saved model to {path}")
     return model
     
+def get_feature_hash(features: list[str]) -> str:
+    features_str = ",".join(sorted(features))
+    return hashlib.md5(features_str.encode()).hexdigest()
+
+def check_and_reset_model_if_needed(ticker: str, current_features: list[str]):
+    current_hash = get_feature_hash(current_features)
+
+    try:
+        with open(HASH_PATH, "r") as f:
+            saved_hashes = json.load(f)
+    except FileNotFoundError:
+        saved_hashes = {}
+
+    if saved_hashes.get(ticker) != current_hash:
+        # Hapus LightGBM
+        for suffix in ["high", "low"]:
+            model_path = f"model_{suffix}_{ticker}.pkl"
+            if os.path.exists(model_path):
+                os.remove(model_path)
+                logging.info(f"{ticker}: LightGBM model '{suffix}' dihapus (fitur berubah)")
+
+        # Hapus LSTM
+        lstm_path = f"model_lstm_{ticker}.keras"
+        if os.path.exists(lstm_path):
+            os.remove(lstm_path)
+            logging.info(f"{ticker}: LSTM model dihapus (fitur berubah)")
+
+        # Simpan hash baru
+        saved_hashes[ticker] = current_hash
+        with open(HASH_PATH, "w") as f:
+            json.dump(saved_hashes, f, indent=2)
 # === Fungsi Utama Per-Ticker ===
 def analyze_stock(ticker: str):
     df = get_stock_data(ticker)
