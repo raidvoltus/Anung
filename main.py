@@ -1,4 +1,5 @@
 import os
+import glob
 import time
 import threading
 import joblib
@@ -512,6 +513,7 @@ def get_random_motivation() -> str:
 
 # === Eksekusi & Kirim Sinyal ===
 if __name__ == "__main__":
+    reset_models()
     logging.info("🚀 Memulai analisis saham...")
     max_workers = min(8, os.cpu_count() or 1)
 
