@@ -25,7 +25,11 @@ CHAT_ID          = os.environ.get("CHAT_ID")
 ATR_MULTIPLIER   = 2.5
 RETRAIN_INTERVAL = 7
 BACKUP_CSV_PATH  = "stock_data_backup.csv"
-
+# Konstanta threshold (letakkan di atas fungsi analyze_stock)
+MIN_PRICE = 50
+MIN_VOLUME = 10000
+MIN_VOLATILITY = 0.005
+MIN_PROB = 0.6
 # === Daftar Saham ===
 STOCK_LIST = [
     "ACES.JK", "ADMR.JK", "ADRO.JK", "AKRA.JK", "AMMN.JK", "AMRT.JK", "ANTM.JK", "ARTO.JK", "ASII.JK", "AUTO.JK",
@@ -166,6 +170,21 @@ def calculate_probability(model, X: pd.DataFrame, y_true: pd.Series) -> float:
 
     return correct_dir.sum() / len(correct_dir)
 
+# Fungsi load_or_train_model (letakkan sebelum atau setelah analyze_stock)
+def load_or_train_model(path, train_func, X, y):
+    if os.path.exists(path):
+        model = joblib.load(path) if path.endswith(".pkl") else load_model(path)
+        logging.info(f"Loaded model from {path}")
+    else:
+        model = train_func(X, y)
+        with model_save_lock:
+            if path.endswith(".pkl"):
+                joblib.dump(model, path)
+            else:
+                model.save(path)
+        logging.info(f"Trained & saved model to {path}")
+    return model
+    
 # === Fungsi Utama Per-Ticker ===
 def analyze_stock(ticker: str):
     df = get_stock_data(ticker)
