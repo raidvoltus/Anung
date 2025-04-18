@@ -228,23 +228,30 @@ def check_and_reset_model_if_needed(ticker: str, current_features: list[str]):
         saved_hashes = {}
 
     if saved_hashes.get(ticker) != current_hash:
+        logging.info(f"{ticker}: Struktur fitur berubah — melakukan reset model")
+
         # Hapus LightGBM
         for suffix in ["high", "low"]:
             model_path = f"model_{suffix}_{ticker}.pkl"
             if os.path.exists(model_path):
                 os.remove(model_path)
-                logging.info(f"{ticker}: LightGBM model '{suffix}' dihapus (fitur berubah)")
+                logging.info(f"{ticker}: Model LightGBM '{suffix}' dihapus")
 
         # Hapus LSTM
         lstm_path = f"model_lstm_{ticker}.keras"
         if os.path.exists(lstm_path):
             os.remove(lstm_path)
-            logging.info(f"{ticker}: LSTM model dihapus (fitur berubah)")
+            logging.info(f"{ticker}: Model LSTM dihapus")
 
         # Simpan hash baru
         saved_hashes[ticker] = current_hash
         with open(HASH_PATH, "w") as f:
             json.dump(saved_hashes, f, indent=2)
+
+        logging.info(f"{ticker}: Model akan dilatih ulang dengan struktur fitur terbaru")
+    else:
+        logging.debug(f"{ticker}: Struktur fitur sama — model tidak di-reset")
+        
 # === Fungsi Utama Per-Ticker ===
 def analyze_stock(ticker: str):
     df = get_stock_data(ticker)
