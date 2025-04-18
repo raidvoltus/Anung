@@ -234,20 +234,20 @@ def analyze_stock(ticker: str):
         return None
 
     # -- Siapkan fitur & label (disesuaikan untuk prediksi harga besok) --
-features = [
-    "Close", "ATR", "RSI", "MACD", "MACD_Hist",
-    "SMA_14", "SMA_28", "SMA_84", "EMA_10",
-    "BB_Upper", "BB_Lower", "Support", "Resistance",
-    "VWAP", "ADX", "CCI", "Momentum", "WilliamsR",
-    "daily_avg", "daily_std", "daily_range",
-    "is_opening_hour", "is_closing_hour"
-]
+    features = [
+        "Close", "ATR", "RSI", "MACD", "MACD_Hist",
+        "SMA_14", "SMA_28", "SMA_84", "EMA_10",
+        "BB_Upper", "BB_Lower", "Support", "Resistance",
+        "VWAP", "ADX", "CCI", "Momentum", "WilliamsR",
+        "daily_avg", "daily_std", "daily_range",
+        "is_opening_hour", "is_closing_hour"
+    ]
 
-df = df.dropna(subset=features + ["future_high", "future_low"])
+    df = df.dropna(subset=features + ["future_high", "future_low"])
 
-X      = df[features]
-y_high = df["future_high"]
-y_low  = df["future_low"]
+    X      = df[features]
+    y_high = df["future_high"]
+    y_low  = df["future_low"]
 
     # -- Split data sinkron --
     X_tr, X_te, yh_tr, yh_te, yl_tr, yl_te = train_test_split(
