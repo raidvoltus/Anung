@@ -10,6 +10,7 @@ import pandas as pd
 import yfinance as yf
 import lightgbm as lgb
 import tensorflow as tf
+from typing import Optional, Dict, List, Tuple
 
 from ta import momentum, trend, volatility, volume
 from datetime import datetime
