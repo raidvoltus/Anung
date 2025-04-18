@@ -1,0 +1,46 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# Logs
+*.log
+trading.log
+
+# Model files
+model_high_*.pkl
+model_low_*.pkl
+model_lstm_*.keras
+
+# Fitur‑hash dan file state
+features_hash.json
+prediksi_log.csv
+
+# IDE/editor metadata
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dependency directories
+pip-wheel-metadata/
+htmlcov/
+
+# Coverage reports
+.coverage
+coverage.xml
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Pytest cache
+.pytest_cache/
