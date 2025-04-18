@@ -234,7 +234,7 @@ def analyze_stock(ticker: str):
         return None
 
     # -- Siapkan fitur & label --
-    features = ["Close","ATR","RSI","MACD","MACD_Hist","SMA_14","SMA_28","SMA_84","EMA_10"
+    features = ["Close","ATR","RSI","MACD","MACD_Hist","SMA_14","SMA_28","SMA_84","EMA_10",
                 "SMA_100","BB_Upper","BB_Lower","Support","Resistance","VWAP","ADX","CCI","Momentum","WiliamsR","hour","is_opening_hour"
                 "is_closing_hour","daily_avg","daily_std","daily_range"]
     df = df.dropna(subset=features + ["future_high","future_low"])
