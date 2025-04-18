@@ -199,13 +199,13 @@ def analyze_stock(ticker: str):
     avg_volume = df["Volume"].tail(20).mean()
     atr        = df["ATR"].iloc[-1]
 
-    if price < 50:
+    if price < MIN_PRICE:
         logging.info(f"{ticker} dilewati: harga terlalu rendah ({price:.2f})")
         return None
-    if avg_volume < 10000:
+    if avg_volume < MIN_VOLUME:
         logging.info(f"{ticker} dilewati: volume terlalu rendah ({avg_volume:.0f})")
         return None
-    if (atr / price) < 0.005:
+    if (atr / price) < MIN_VOLATILITY:
         logging.info(f"{ticker} dilewati: volatilitas terlalu rendah (ATR={atr:.4f})")
         return None
 
