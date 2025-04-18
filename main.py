@@ -95,9 +95,31 @@ def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
     return df.dropna()
 
 # === Training LightGBM ===
-def train_lightgbm(X: pd.DataFrame, y: pd.Series) -> lgb.LGBMRegressor:
-    model = lgb.LGBMRegressor(n_estimators=500, learning_rate=0.05)
-    model.fit(X, y)
+def train_lightgbm(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_val: Optional[pd.DataFrame] = None,
+    y_val: Optional[pd.Series] = None,
+    n_estimators: int = 500,
+    learning_rate: float = 0.05,
+    early_stopping_rounds: Optional[int] = 50,
+    random_state: int = 42
+) -> lgb.LGBMRegressor:
+    model = lgb.LGBMRegressor(
+        n_estimators=n_estimators,
+        learning_rate=learning_rate,
+        random_state=random_state
+    )
+    if X_val is not None and y_val is not None:
+        model.fit(
+            X_train,
+            y_train,
+            eval_set=[(X_val, y_val)],
+            early_stopping_rounds=early_stopping_rounds,
+            verbose=False
+        )
+    else:
+        model.fit(X_train, y_train)
     return model
 
 # === Training LSTM ===
