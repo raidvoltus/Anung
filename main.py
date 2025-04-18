@@ -83,7 +83,7 @@ def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df["BB_Lower"]   = bb.bollinger_lband()
     df["Support"]    = df["Low"].rolling(window=30).min()
     df["Resistance"] = df["High"].rolling(window=30).max()
-    stoch            = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=14)
+    stoch            = momentum.StochasticOscillator(df["High"], df["Low"], df["Close"], window=20)
     df["RSI"]        = momentum.RSIIndicator(df["Close"], window=20).rsi()
     df["SMA_20"]     = trend.SMAIndicator(df["Close"], window=20).sma_indicator()
     df["SMA_40"]     = trend.SMAIndicator(df["Close"], window=40).sma_indicator()
