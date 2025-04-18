@@ -421,11 +421,26 @@ def get_realized_price_data() -> pd.DataFrame:
 def evaluate_prediction_accuracy() -> Dict[str, float]:
     if not os.path.exists("prediksi_log.csv"):
         return {}
-    df_log = pd.read_csv("prediksi_log.csv")
-    df_data = get_realized_price_data()  # Fungsi ini harus Anda definisikan
-    df_merged = df_log.merge(df_data, on=["ticker", "tanggal"])
-    df_merged["benar"] = ((df_merged["actual_high"] >= df_merged["pred_high"]) & 
+
+    # Baca log prediksi
+    df_log = pd.read_csv("prediksi_log.csv", names=["ticker", "tanggal", "harga_awal", "pred_high", "pred_low"])
+    df_log["tanggal"] = pd.to_datetime(df_log["tanggal"])
+
+    # Ambil data realisasi dari yfinance
+    df_data = get_realized_price_data()
+    if df_data.empty:
+        return {}
+
+    df_data["tanggal"] = pd.to_datetime(df_data["tanggal"])
+
+    # Gabungkan berdasarkan ticker dan tanggal
+    df_merged = df_log.merge(df_data, on=["ticker", "tanggal"], how="inner")
+
+    # Evaluasi apakah prediksi benar: future_high <= actual_high dan future_low >= actual_low
+    df_merged["benar"] = ((df_merged["actual_high"] >= df_merged["pred_high"]) &
                           (df_merged["actual_low"] <= df_merged["pred_low"]))
+
+    # Hitung akurasi per ticker
     return df_merged.groupby("ticker")["benar"].mean().to_dict()
     
 def reset_models():
