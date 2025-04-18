@@ -377,6 +377,29 @@ def evaluate_prediction_accuracy() -> Dict[str, float]:
                           (df_merged["actual_low"] <= df_merged["pred_low"]))
     return df_merged.groupby("ticker")["benar"].mean().to_dict()
     
+def reset_models():
+    # Pola file model
+    patterns = [
+        "model_high_*.pkl",
+        "model_low_*.pkl",
+        "model_lstm_*.keras"
+    ]
+
+    total_deleted = 0
+    for pattern in patterns:
+        for filepath in glob.glob(pattern):
+            try:
+                os.remove(filepath)
+                print(f"Dihapus: {filepath}")
+                total_deleted += 1
+            except Exception as e:
+                print(f"Gagal menghapus {filepath}: {e}")
+    
+    if total_deleted == 0:
+        print("Tidak ada model yang ditemukan untuk dihapus.")
+    else:
+        print(f"Total {total_deleted} model dihapus.")
+        
 # === Daftar Kutipan Motivasi ===
 MOTIVATION_QUOTES = [
     "Setiap peluang adalah langkah kecil menuju kebebasan finansial.",
